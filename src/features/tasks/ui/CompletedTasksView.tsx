@@ -9,7 +9,7 @@ export const CompletedTasksView = () => {
   const completedTasks = tasks.filter(task => task.isCompleted)
 
   return (
-    <Box>
+    <Box sx={{ flex: 1 }}>
       <Typography variant="h6" sx={{ mb: 3 }}>
         Completed Tasks ({completedTasks.length})
       </Typography>

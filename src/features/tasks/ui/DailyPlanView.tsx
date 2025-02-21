@@ -1,17 +1,23 @@
 // src/features/tasks/ui/DailyPlanView.tsx
 import { useState } from 'react'
-import { Box, Typography, Fab, IconButton } from '@mui/material'
+import { Box, Typography, Fab } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import { TaskCard, TaskForm } from '@/entities/task'
 import { useTasksState } from '../model'
 
 export const DailyPlanView = () => {
-  const { tasks, createTask, toggleTaskCompletion, toggleTaskPriority, toggleDailyTask } = useTasksState()
+  const { 
+    tasks, 
+    createTask, 
+    toggleTaskCompletion, 
+    toggleTaskPriority,
+    removeFromDaily 
+  } = useTasksState()
   const [isFormOpen, setIsFormOpen] = useState(false)
 
-  const dailyTasks = tasks.filter(task => !task.isCompleted && (task.isDaily || task.addedToDaily))
-  const availableTasks = tasks.filter(task => !task.isCompleted && !task.isDaily && !task.addedToDaily)
+  const dailyTasks = tasks.filter(task => 
+    !task.isCompleted && (task.isDaily || task.addedToDaily || task.category === 'chore')
+  )
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', pb: 8 }}>
@@ -29,34 +35,13 @@ export const DailyPlanView = () => {
             <TaskCard
               key={task.id}
               task={task}
+              showDailyIndicator={false}
               onComplete={() => toggleTaskCompletion(task.id)}
               onTogglePriority={() => toggleTaskPriority(task.id)}
+              onRemoveFromDaily={() => removeFromDaily(task.id)}
             />
           ))}
         </Box>
-      )}
-
-      {availableTasks.length > 0 && (
-        <>
-          <Typography variant="h6" sx={{ mb: 2, mt: 4 }}>
-            Available Tasks
-          </Typography>
-          {availableTasks.map(task => (
-            <Box key={task.id} sx={{ position: 'relative' }}>
-              <IconButton
-                onClick={() => toggleDailyTask(task.id)}
-                sx={{ position: 'absolute', right: 8, top: 8, zIndex: 1 }}
-              >
-                <PlaylistAddIcon />
-              </IconButton>
-              <TaskCard
-                task={task}
-                onComplete={() => toggleTaskCompletion(task.id)}
-                onTogglePriority={() => toggleTaskPriority(task.id)}
-              />
-            </Box>
-          ))}
-        </>
       )}
 
       <Fab 
@@ -75,7 +60,7 @@ export const DailyPlanView = () => {
       <TaskForm
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        onSubmit={createTask}
+        onSubmit={(data) => createTask({ ...data, isDaily: true })}
       />
     </Box>
   )

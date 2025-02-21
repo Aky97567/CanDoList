@@ -1,68 +1,78 @@
 // src/features/tasks/model/useTasksState.ts
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Task } from '@/entities/task'
-
-const mockTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Complete project documentation',
-    category: 'work',
-    priority: 'high',
-    isCompleted: false,
-    addedToDaily: true
-  },
-  {
-    id: '2',
-    title: 'Buy groceries',
-    category: 'personal',
-    priority: 'regular',
-    isCompleted: false,
-    isDaily: true
-  },
-  {
-    id: '3',
-    title: 'Clean the house',
-    category: 'chore',
-    priority: 'regular',
-    isCompleted: false
-  }
-]
+import { useStorage } from '@/app/providers/useStorage'
 
 export const useTasksState = () => {
-  const [tasks, setTasks] = useState<Task[]>(mockTasks)
+  const [tasks, setTasks] = useState<Task[]>([])
+  const storage = useStorage()
 
-  const createTask = (taskData: Omit<Task, 'id' | 'isCompleted'>) => {
+  useEffect(() => {
+    const loadTasks = async () => {
+      const storedTasks = await storage.getTasks()
+      setTasks(storedTasks)
+    }
+    loadTasks()
+  }, [storage])
+
+  const saveTasks = async (newTasks: Task[]) => {
+    await storage.saveTasks(newTasks)
+    setTasks(newTasks)
+  }
+
+  const createTask = async (taskData: Omit<Task, 'id' | 'isCompleted'>) => {
     const newTask: Task = {
       ...taskData,
       id: Date.now().toString(),
       isCompleted: false,
-      addedToDaily: taskData.isDaily || false
+      addedToDaily: taskData.isDaily || taskData.category === 'chore' || false
     }
-    setTasks([...tasks, newTask])
+    await saveTasks([...tasks, newTask])
   }
 
-  const toggleTaskCompletion = (taskId: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
-        ? { ...task, isCompleted: !task.isCompleted }
-        : task
-    ))
+  const toggleTaskCompletion = async (taskId: string) => {
+    const newTasks = tasks.map(task => {
+      if (task.id !== taskId) return task
+      
+      // When marking incomplete, restore daily status if it was daily before
+      if (task.isCompleted) {
+        return { 
+          ...task, 
+          isCompleted: false,
+          addedToDaily: task.isDaily || task.category === 'chore' || task.addedToDaily 
+        }
+      }
+      
+      return { ...task, isCompleted: true }
+    })
+    await saveTasks(newTasks)
   }
 
-  const toggleTaskPriority = (taskId: string) => {
-    setTasks(tasks.map(task =>
+  const toggleTaskPriority = async (taskId: string) => {
+    const newTasks = tasks.map(task =>
       task.id === taskId
         ? { ...task, priority: task.priority === 'high' ? 'regular' : 'high' }
         : task
-    ))
+    )
+    await saveTasks(newTasks)
   }
 
-  const toggleDailyTask = (taskId: string) => {
-    setTasks(tasks.map(task =>
+  const toggleDailyTask = async (taskId: string) => {
+    const newTasks = tasks.map(task =>
       task.id === taskId
         ? { ...task, addedToDaily: !task.addedToDaily }
         : task
-    ))
+    )
+    await saveTasks(newTasks)
+  }
+
+  const removeFromDaily = async (taskId: string) => {
+    const newTasks = tasks.map(task =>
+      task.id === taskId && !task.isDaily && task.category !== 'chore'
+        ? { ...task, addedToDaily: false }
+        : task
+    )
+    await saveTasks(newTasks)
   }
 
   return {
@@ -70,6 +80,7 @@ export const useTasksState = () => {
     createTask,
     toggleTaskCompletion,
     toggleTaskPriority,
-    toggleDailyTask
+    toggleDailyTask,
+    removeFromDaily
   }
 }

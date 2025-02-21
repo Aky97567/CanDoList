@@ -6,15 +6,17 @@ import { TaskCard, TaskForm, TaskCategory } from '@/entities/task'
 import { useTasksState } from '../model'
 
 export const AllTasksView = () => {
-  const { tasks, createTask, toggleTaskCompletion, toggleTaskPriority } = useTasksState()
+  const { tasks, createTask, toggleTaskCompletion, toggleTaskPriority, toggleDailyTask } = useTasksState()
   const [isFormOpen, setIsFormOpen] = useState(false)
 
-  const categories: TaskCategory[] = ['work', 'personal', 'chore']
+  const categories: TaskCategory[] = ['work', 'personal']
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', pb: 8 }}>
       {categories.map(category => {
-        const categoryTasks = tasks.filter(task => task.category === category)
+        const categoryTasks = tasks.filter(task => 
+          task.category === category && !task.isCompleted
+        )
         if (categoryTasks.length === 0) return null
 
         return (
@@ -42,6 +44,7 @@ export const AllTasksView = () => {
                 task={task}
                 onComplete={() => toggleTaskCompletion(task.id)}
                 onTogglePriority={() => toggleTaskPriority(task.id)}
+                onToggleDaily={() => toggleDailyTask(task.id)}
               />
             ))}
           </Paper>
