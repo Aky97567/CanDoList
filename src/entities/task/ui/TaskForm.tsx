@@ -29,6 +29,8 @@ export const TaskForm = ({ open, onClose, onSubmit }: TaskFormProps) => {
     priority: 'regular'
   })
 
+  const categories: TaskCategory[] = ['work', 'personal', 'green', 'chore']
+
   const handleSubmit = () => {
     onSubmit(formData)
     setFormData({ title: '', category: 'personal', priority: 'regular' })
@@ -58,9 +60,11 @@ export const TaskForm = ({ open, onClose, onSubmit }: TaskFormProps) => {
               category: e.target.value as TaskCategory 
             })}
           >
-            <MenuItem value="work">Work</MenuItem>
-            <MenuItem value="personal">Personal</MenuItem>
-            <MenuItem value="chore">Chore</MenuItem>
+            {categories.map(category => (
+              <MenuItem key={category} value={category}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         <FormControl fullWidth>
