@@ -6,7 +6,6 @@ import { Task, getCategoryColor } from "../model";
 
 interface TaskCardProps {
   task: Task;
-  showDailyIndicator?: boolean;
   onComplete?: () => void;
   onTogglePriority?: () => void;
   onToggleDaily?: () => void;
@@ -16,7 +15,6 @@ interface TaskCardProps {
 
 export const TaskCard = ({
   task,
-  showDailyIndicator = true,
   onComplete,
   onTogglePriority,
   onToggleDaily,

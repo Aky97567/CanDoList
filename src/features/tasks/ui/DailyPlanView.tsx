@@ -37,7 +37,6 @@ export const DailyPlanView = () => {
             <TaskCard
               key={task.id}
               task={task}
-              showDailyIndicator={false}
               onComplete={() => toggleTaskCompletion(task.id)}
               onTogglePriority={() => toggleTaskPriority(task.id)}
               onRemoveFromDaily={() => toggleDailyTask(task.id)}
