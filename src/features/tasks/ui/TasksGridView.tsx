@@ -10,6 +10,7 @@ interface TasksGridViewProps {
   emptyStateMessage?: string;
   taskFilter: (task: Task) => boolean;
   onComplete: (taskId: string) => void;
+  onEdit?: (task: Task) => void;
   onTogglePriority?: (taskId: string) => void;
   onToggleDaily?: (taskId: string) => void;
   fabAction?: () => void;
@@ -22,6 +23,7 @@ export const TasksGridView = ({
   emptyStateMessage,
   taskFilter,
   onComplete,
+  onEdit,
   onTogglePriority,
   onToggleDaily,
   fabAction,
@@ -30,15 +32,23 @@ export const TasksGridView = ({
 
   if (filteredTasks.length === 0 && emptyStateMessage) {
     return (
-      <Box sx={{ position: "relative", minHeight: "100vh", pb: 8, width: "100%" }}>
-        {title && <Typography variant="h6" sx={{ mb: 3 }}>{title}</Typography>}
+      <Box
+        sx={{ position: "relative", minHeight: "100vh", pb: 8, width: "100%" }}
+      >
+        {title && (
+          <Typography variant="h6" sx={{ mb: 3 }}>
+            {title}
+          </Typography>
+        )}
         <Typography color="text.secondary">{emptyStateMessage}</Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ position: "relative", minHeight: "100vh", pb: 8, width: "100%" }}>
+    <Box
+      sx={{ position: "relative", minHeight: "100vh", pb: 8, width: "100%" }}
+    >
       {title && (
         <Typography variant="h6" sx={{ mb: 3 }}>
           {title} {filteredTasks.length > 0 && `(${filteredTasks.length})`}
@@ -77,6 +87,7 @@ export const TasksGridView = ({
                     key={task.id}
                     task={task}
                     onComplete={() => onComplete(task.id)}
+                    onEdit={onEdit ? () => onEdit(task) : undefined}
                     onTogglePriority={
                       onTogglePriority
                         ? () => onTogglePriority(task.id)

@@ -1,5 +1,5 @@
 // src/entities/task/ui/TaskForm.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Dialog,
   DialogTitle,
@@ -14,32 +14,52 @@ import {
 } from '@mui/material'
 import { Task, TaskCategory, TaskPriority } from '../model'
 
-type TaskFormData = Omit<Task, 'id' | 'isCompleted'>
+type TaskFormData = Omit<Task, 'id' | 'isCompleted' | 'addedToDaily' | 'isDaily'>
 
 interface TaskFormProps {
   open: boolean
   onClose: () => void
   onSubmit: (task: TaskFormData) => void
+  initialData?: Task
+  mode?: 'create' | 'edit'
 }
 
-export const TaskForm = ({ open, onClose, onSubmit }: TaskFormProps) => {
+export const TaskForm = ({ 
+  open, 
+  onClose, 
+  onSubmit, 
+  initialData,
+  mode = 'create' 
+}: TaskFormProps) => {
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     category: 'personal',
     priority: 'regular'
   })
 
-  const categories: TaskCategory[] = ['work', 'personal', 'green', 'chore']
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title,
+        category: initialData.category,
+        priority: initialData.priority
+      })
+    }
+  }, [initialData])
 
   const handleSubmit = () => {
     onSubmit(formData)
-    setFormData({ title: '', category: 'personal', priority: 'regular' })
+    if (mode === 'create') {
+      setFormData({ title: '', category: 'personal', priority: 'regular' })
+    }
     onClose()
   }
 
+  const categories: TaskCategory[] = ['work', 'personal', 'green', 'chore']
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>New Task</DialogTitle>
+      <DialogTitle>{mode === 'create' ? 'New Task' : 'Edit Task'}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
@@ -89,7 +109,7 @@ export const TaskForm = ({ open, onClose, onSubmit }: TaskFormProps) => {
           variant="contained" 
           disabled={!formData.title.trim()}
         >
-          Create
+          {mode === 'create' ? 'Create' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>

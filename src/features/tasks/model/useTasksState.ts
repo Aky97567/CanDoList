@@ -30,11 +30,19 @@ export const useTasksState = () => {
     await saveTasks([...tasks, newTask])
   }
 
+  const updateTask = async (taskId: string, updates: Partial<Omit<Task, 'id'>>) => {
+    const newTasks = tasks.map(task =>
+      task.id === taskId
+        ? { ...task, ...updates }
+        : task
+    )
+    await saveTasks(newTasks)
+  }
+
   const toggleTaskCompletion = async (taskId: string) => {
     const newTasks = tasks.map(task => {
       if (task.id !== taskId) return task
       
-      // When marking incomplete, restore daily status if it was daily before
       if (task.isCompleted) {
         return { 
           ...task, 
@@ -66,21 +74,12 @@ export const useTasksState = () => {
     await saveTasks(newTasks)
   }
 
-  const removeFromDaily = async (taskId: string) => {
-    const newTasks = tasks.map(task =>
-      task.id === taskId && !task.isDaily && task.category !== 'chore'
-        ? { ...task, addedToDaily: false }
-        : task
-    )
-    await saveTasks(newTasks)
-  }
-
   return {
     tasks,
     createTask,
+    updateTask,
     toggleTaskCompletion,
     toggleTaskPriority,
-    toggleDailyTask,
-    removeFromDaily
+    toggleDailyTask
   }
 }
