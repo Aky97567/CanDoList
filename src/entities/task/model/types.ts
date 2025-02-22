@@ -1,5 +1,5 @@
 // src/entities/task/model/types.ts
-export type TaskCategory = "work" | "personal" | "chore" | "green";
+export type TaskCategory = "work" | "personal" | "green" | "chore";
 export type TaskPriority = "high" | "regular";
 
 export interface Task {
@@ -16,12 +16,14 @@ export interface Task {
 export const getCategoryColor = (category: TaskCategory) => {
   switch (category) {
     case "work":
-      return "default"; // black
+      return "#757575"; // grey[600]
     case "personal":
-      return "primary"; // blue
+      return "#2196F3"; // blue[500]
     case "chore":
-      return "secondary"; // pink
+      return "#E91E63"; // vibrant pink
+    case "green":
+      return "#4CAF50"; // green[500]
     default:
-      return "default";
+      return "#757575";
   }
 };

@@ -2,3 +2,4 @@
 export * from './AllTasksView'
 export * from './CompletedTasksView'
 export * from './DailyPlanView'
+export * from './TasksGridView'
