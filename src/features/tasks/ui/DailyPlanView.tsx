@@ -1,26 +1,28 @@
 // src/features/tasks/ui/DailyPlanView.tsx
-import { useState } from 'react'
-import { Box, Typography, Fab } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import { TaskCard, TaskForm } from '@/entities/task'
-import { useTasksState } from '../model'
+import { useState } from "react";
+import { Box, Typography, Fab } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { TaskCard, TaskForm } from "@/entities/task";
+import { useTasksState } from "../model";
 
 export const DailyPlanView = () => {
-  const { 
-    tasks, 
-    createTask, 
-    toggleTaskCompletion, 
+  const {
+    tasks,
+    createTask,
+    toggleTaskCompletion,
     toggleTaskPriority,
-    removeFromDaily 
-  } = useTasksState()
-  const [isFormOpen, setIsFormOpen] = useState(false)
+    toggleDailyTask,
+  } = useTasksState();
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const dailyTasks = tasks.filter(task => 
-    !task.isCompleted && (task.isDaily || task.addedToDaily || task.category === 'chore')
-  )
+  const dailyTasks = tasks.filter(
+    (task) =>
+      !task.isCompleted &&
+      (task.isDaily || task.addedToDaily || task.category === "chore")
+  );
 
   return (
-    <Box sx={{ position: 'relative', minHeight: '100vh', pb: 8 }}>
+    <Box sx={{ position: "relative", minHeight: "100vh", pb: 8 }}>
       <Typography variant="h6" sx={{ mb: 3 }}>
         Today's Tasks ({dailyTasks.length})
       </Typography>
@@ -31,25 +33,25 @@ export const DailyPlanView = () => {
         </Typography>
       ) : (
         <Box sx={{ mb: 4 }}>
-          {dailyTasks.map(task => (
+          {dailyTasks.map((task) => (
             <TaskCard
               key={task.id}
               task={task}
               showDailyIndicator={false}
               onComplete={() => toggleTaskCompletion(task.id)}
               onTogglePriority={() => toggleTaskPriority(task.id)}
-              onRemoveFromDaily={() => removeFromDaily(task.id)}
+              onRemoveFromDaily={() => toggleDailyTask(task.id)}
             />
           ))}
         </Box>
       )}
 
-      <Fab 
-        color="primary" 
+      <Fab
+        color="primary"
         aria-label="add task"
         onClick={() => setIsFormOpen(true)}
         sx={{
-          position: 'fixed',
+          position: "fixed",
           bottom: 16,
           right: 16,
         }}
@@ -63,5 +65,5 @@ export const DailyPlanView = () => {
         onSubmit={(data) => createTask({ ...data, isDaily: true })}
       />
     </Box>
-  )
-}
+  );
+};
