@@ -17,6 +17,7 @@ import {
   verticalListSortingStrategy,
   useSortable,
 } from '@dnd-kit/sortable';
+import { Box } from '@mui/material';
 
 interface SortableTaskCardProps {
   task: Task;
@@ -36,8 +37,16 @@ const SortableTaskCard = ({ task, ...props }: SortableTaskCardProps) => {
   } : undefined;
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TaskCard task={task} {...props} />
+    <div ref={setNodeRef} style={style}>
+      <Box {...attributes} {...listeners} sx={{ 
+        cursor: 'grab',
+        '& .MuiButtonBase-root': {
+          cursor: 'pointer',
+          pointerEvents: 'auto',
+        }
+      }}>
+        <TaskCard task={task} {...props} />
+      </Box>
     </div>
   );
 };
@@ -58,7 +67,11 @@ export const DraggableTaskList = ({
   onRemoveFromDaily,
 }: DraggableTaskListProps) => {
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
