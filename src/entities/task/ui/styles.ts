@@ -12,7 +12,7 @@ interface TaskCardContainerProps {
 const OPTION: number = 1;
 
 export const TaskCardContainer = styled(Card, {
-  shouldForwardProp: (prop) =>
+  shouldForwardProp: (prop: string) =>
     !["completed", "category", "categoryColor"].includes(prop),
 })<TaskCardContainerProps>(({ theme, completed, categoryColor }) => ({
   marginBottom: theme.spacing(1),

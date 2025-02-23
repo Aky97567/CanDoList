@@ -1,6 +1,6 @@
 // src/shared/api/adapters/out/storage/firebase/config.ts
-import { initializeApp } from 'firebase/app';
-import { getFirestore, initializeFirestore } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,13 +11,13 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-console.log('Initializing Firebase with config:', {
+console.log("Initializing Firebase with config:", {
   ...firebaseConfig,
-  apiKey: '***' // Hide API key in logs
+  apiKey: "***", // Hide API key in logs
 });
 
 // Hardcoded user ID for now - will be replaced with auth later
-export const CURRENT_USER_ID = 'default-user';
+export const CURRENT_USER_ID = "default-user";
 
 export const app = initializeApp(firebaseConfig);
 
@@ -30,4 +30,4 @@ const firestoreSettings = {
 
 export const db = initializeFirestore(app, firestoreSettings);
 
-console.log('Firebase initialized with custom settings');
+console.log("Firebase initialized with custom settings");

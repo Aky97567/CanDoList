@@ -1,9 +1,9 @@
 // src/app/providers/StorageProvider.tsx
-import { createContext, ReactNode, useState, useEffect } from 'react';
-import { TaskStorage } from '@/shared/api/ports/out/storage/';
-import { FirebaseAdapter } from '@/shared/api/adapters/out/storage/firebase/';
-import { LocalStorageAdapter } from '@/shared/api/adapters/out/storage/local/';
-import { LoadingState, ErrorState } from '@/shared/ui/';
+import { createContext, ReactNode, useState, useEffect } from "react";
+import { TaskStorage } from "@/shared/api/ports/out/storage/";
+import { FirebaseAdapter } from "@/shared/api/adapters/out/storage/firebase/";
+// import { LocalStorageAdapter } from "@/shared/api/adapters/out/storage/local/";
+import { LoadingState, ErrorState } from "@/shared/ui/";
 
 export const StorageContext = createContext<TaskStorage | null>(null);
 
@@ -19,17 +19,22 @@ export const StorageProvider = ({ children }: StorageProviderProps) => {
   useEffect(() => {
     const initializeStorage = async () => {
       try {
-        const cacheStorage = new LocalStorageAdapter();
-        const firebaseStorage = new FirebaseAdapter(cacheStorage);
-        
+        //! TODO implement local cache
+        //TODO  const cacheStorage = new LocalStorageAdapter();
+
+        const firebaseStorage = new FirebaseAdapter();
+        //TODO const firebaseStorage = new FirebaseAdapter(cacheStorage);
+
         // Test connection by fetching tasks
         await firebaseStorage.getTasks();
-        
+
         setStorage(firebaseStorage);
         setError(null);
       } catch (err) {
-        console.error('Failed to initialize storage:', err);
-        setError(err instanceof Error ? err : new Error('Failed to initialize storage'));
+        console.error("Failed to initialize storage:", err);
+        setError(
+          err instanceof Error ? err : new Error("Failed to initialize storage")
+        );
       } finally {
         setIsInitializing(false);
       }
