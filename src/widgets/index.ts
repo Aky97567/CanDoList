@@ -1,2 +1,2 @@
 // src/widgets/index.ts
-export * from './navigation/ui'
+export * from "./navigation";

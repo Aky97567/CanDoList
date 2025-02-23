@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Box, Typography, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { TaskCard, TaskForm } from "@/entities/task";
+import { TaskCard, TaskForm } from "@/entities";
 import { useTasksState } from "../model";
 
 export const DailyPlanView = () => {

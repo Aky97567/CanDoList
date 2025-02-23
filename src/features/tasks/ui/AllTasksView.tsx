@@ -1,8 +1,8 @@
 // src/features/tasks/ui/AllTasksView.tsx
-import { useState } from "react"
-import { Task, TaskForm, TaskCategory } from "@/entities/task"
-import { useTasksState } from "../model"
-import { TasksGridView } from "./TasksGridView"
+import { useState } from "react";
+import { Task, TaskForm, TaskCategory } from "@/entities";
+import { useTasksState } from "../model";
+import { TasksGridView } from "./TasksGridView";
 
 export const AllTasksView = () => {
   const {
@@ -12,18 +12,18 @@ export const AllTasksView = () => {
     toggleTaskCompletion,
     toggleTaskPriority,
     toggleDailyTask,
-  } = useTasksState()
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  } = useTasksState();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const handleEditTask = (taskData: Omit<Task, 'id' | 'isCompleted'>) => {
+  const handleEditTask = (taskData: Omit<Task, "id" | "isCompleted">) => {
     if (editingTask) {
-      updateTask(editingTask.id, taskData)
-      setEditingTask(null)
+      updateTask(editingTask.id, taskData);
+      setEditingTask(null);
     }
-  }
+  };
 
-  const categories: TaskCategory[] = ["work", "personal", "green"]
+  const categories: TaskCategory[] = ["work", "personal", "green"];
 
   return (
     <>
@@ -53,5 +53,5 @@ export const AllTasksView = () => {
         mode="edit"
       />
     </>
-  )
-}
+  );
+};

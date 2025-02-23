@@ -1,7 +1,7 @@
 // src/features/tasks/model/useTasksState.ts
 import { useState, useEffect } from "react";
-import { Task, TaskPriority } from "@/entities/task";
-import { useStorage } from "@/app/providers/useStorage";
+import { Task, TaskPriority } from "@/entities";
+import { useStorage } from "@/app/";
 
 export const useTasksState = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
