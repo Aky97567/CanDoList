@@ -35,7 +35,7 @@ export const TaskCard = ({
         sx={{
           p: "12px !important",
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "space-between",
           "&:last-child": { pb: "12px !important" },
         }}
@@ -47,12 +47,27 @@ export const TaskCard = ({
             fontSize: "1rem",
             fontWeight: 500,
             flex: 1,
-            mr: 2,
+            mr: 1,
           }}
         >
           {title}
         </Typography>
-        <Box sx={{ display: "flex", gap: 0.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: { xs: "wrap", sm: "nowrap" },
+            gap: 0.25,
+            width: { xs: "66px", sm: "auto" }, // Reduced from 88px to 66px for smaller buttons
+            justifyContent: "flex-end",
+            "& .MuiIconButton-root": {
+              width: { xs: "30px", sm: "40px" }, // Smaller buttons on mobile
+              height: { xs: "30px", sm: "40px" },
+              "& .MuiSvgIcon-root": {
+                fontSize: { xs: "1rem", sm: "1.25rem" }, // Smaller icons on mobile
+              },
+            },
+          }}
+        >
           {onEdit && !isCompleted && (
             <IconButton size="small" onClick={() => onEdit(task)}>
               <Edit fontSize="small" />
