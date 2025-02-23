@@ -11,6 +11,7 @@ export interface Task {
   isDaily?: boolean;
   isOneTime?: boolean;
   addedToDaily?: boolean;
+  rank?: string;
 }
 
 export const getCategoryColor = (category: TaskCategory) => {

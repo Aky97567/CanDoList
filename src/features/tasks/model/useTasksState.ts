@@ -1,6 +1,6 @@
 // src/features/tasks/model/useTasksState.ts
 import { useState, useEffect } from "react";
-import { Task, TaskPriority } from "@/entities";
+import { Task, TaskPriority, generateInitialRank, generateRankBetween } from "@/entities";
 import { useStorage } from "@/app/";
 
 export const useTasksState = () => {
@@ -20,12 +20,24 @@ export const useTasksState = () => {
     setTasks(newTasks);
   };
 
-  const createTask = async (taskData: Omit<Task, "id" | "isCompleted">) => {
+  const createTask = async (taskData: Omit<Task, "id" | "isCompleted" | "rank">) => {
+    const dailyTasks = tasks.filter(
+      t => !t.isCompleted && (t.isDaily || t.addedToDaily || t.category === "chore")
+    );
+    
+    const rank = dailyTasks.length > 0
+      ? generateRankBetween(
+          dailyTasks[dailyTasks.length - 1].rank || null,
+          null
+        )
+      : generateInitialRank();
+
     const newTask: Task = {
       ...taskData,
       id: Date.now().toString(),
       isCompleted: false,
       addedToDaily: taskData.isDaily || taskData.category === "chore" || false,
+      rank,
     };
     await saveTasks([...tasks, newTask]);
   };
@@ -38,6 +50,24 @@ export const useTasksState = () => {
       task.id === taskId ? { ...task, ...updates } : task
     );
     await saveTasks(newTasks);
+  };
+
+  const reorderTasks = async (oldIndex: number, newIndex: number) => {
+    const dailyTasks = tasks.filter(
+      t => !t.isCompleted && (t.isDaily || t.addedToDaily || t.category === "chore")
+    );
+    
+    const movedTask = dailyTasks[oldIndex];
+    const newRank = generateRankBetween(
+      dailyTasks[newIndex - 1]?.rank || null,
+      dailyTasks[newIndex + 1]?.rank || null
+    );
+
+    const updatedTasks = tasks.map(task =>
+      task.id === movedTask.id ? { ...task, rank: newRank } : task
+    );
+
+    await saveTasks(updatedTasks);
   };
 
   const toggleTaskCompletion = async (taskId: string) => {
@@ -83,6 +113,7 @@ export const useTasksState = () => {
     tasks,
     createTask,
     updateTask,
+    reorderTasks,
     toggleTaskCompletion,
     toggleTaskPriority,
     toggleDailyTask,
