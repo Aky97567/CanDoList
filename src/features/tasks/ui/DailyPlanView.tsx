@@ -26,7 +26,16 @@ export const DailyPlanView = () => {
     .sort((a, b) => (b.rank || "").localeCompare(a.rank || "")); // Reversed sort order
 
   return (
-    <Box sx={{ position: "relative", minHeight: "100vh", pb: 8 }}>
+    <Box
+      id="daily-plan-view"
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+        pb: 8,
+        width: "calc(100vw - 28px)",
+        maxWidth: "400px",
+      }}
+    >
       <Typography variant="h6" sx={{ mb: 3 }}>
         Today's Tasks ({dailyTasks.length})
       </Typography>

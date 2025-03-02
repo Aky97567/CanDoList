@@ -1,10 +1,11 @@
 // src/App.tsx
 import { useState } from "react";
-import { Container, Box, Toolbar } from "@mui/material";
+import { Box, Toolbar } from "@mui/material";
 import { Navbar } from "@/widgets";
 import { View } from "@/shared";
 import { AllTasksView, CompletedTasksView, DailyPlanView } from "@/features";
 import { StorageProvider } from "@/app/";
+import { AppContainer } from "./styles";
 
 function App() {
   const [currentView, setCurrentView] = useState<View>("daily-plan");
@@ -12,23 +13,21 @@ function App() {
   return (
     <StorageProvider>
       <Box
-        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        id="root-of-all-evil"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          minWidth: "100vw",
+        }}
       >
         <Navbar currentView={currentView} onViewChange={setCurrentView} />
         <Toolbar /> {/* Spacer for fixed AppBar */}
-        <Container
-          component="main"
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            py: 4,
-          }}
-        >
+        <AppContainer component="main">
           {currentView === "all-tasks" && <AllTasksView />}
           {currentView === "daily-plan" && <DailyPlanView />}
           {currentView === "completed" && <CompletedTasksView />}
-        </Container>
+        </AppContainer>
       </Box>
     </StorageProvider>
   );
