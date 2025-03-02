@@ -7,7 +7,7 @@ import { AllTasksView, CompletedTasksView, DailyPlanView } from "@/features";
 import { StorageProvider } from "@/app/";
 
 function App() {
-  const [currentView, setCurrentView] = useState<View>("all-tasks");
+  const [currentView, setCurrentView] = useState<View>("daily-plan");
 
   return (
     <StorageProvider>
