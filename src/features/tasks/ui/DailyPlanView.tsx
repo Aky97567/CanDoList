@@ -17,13 +17,22 @@ export const DailyPlanView = () => {
   } = useTasksState();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
+  // Filter for daily tasks and sort by rank (ascending order)
+  // With numeric ranks stored as strings, smaller numbers appear at the top
   const dailyTasks = tasks
     .filter(
       (task) =>
         !task.isCompleted &&
         (task.isDaily || task.addedToDaily || task.category === "chore")
     )
-    .sort((a, b) => (b.rank || "").localeCompare(a.rank || "")); // Reversed sort order
+    .sort((a, b) => {
+      // Handle missing ranks
+      if (!a.rank) return 1;
+      if (!b.rank) return -1;
+
+      // Compare as numbers, not strings
+      return parseInt(a.rank) - parseInt(b.rank);
+    });
 
   return (
     <Box
