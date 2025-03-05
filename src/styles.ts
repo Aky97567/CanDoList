@@ -11,10 +11,10 @@ export const AppContainer = styled(Container)<AppContainerProps>(
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    padding: theme.spacing(4, 0),
+
     width: "100%",
     maxWidth: "300px",
-    margin: "0 .625rem",
+    margin: "1.5rem 0 0 0",
 
     [theme.breakpoints.up("sm")]: {
       maxWidth: "400px",

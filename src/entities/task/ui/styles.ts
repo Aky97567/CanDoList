@@ -24,7 +24,10 @@ export const TaskCardContainer = styled(Card, {
   borderLeft: OPTION === 1 ? `6px solid ${categoryColor}` : "",
   ...(OPTION !== 1 ? { border: `3px solid ${categoryColor}` } : {}),
   [theme.breakpoints.up("md")]: {
-    minWidth: "300px",
+    minWidth: "250px",
+  },
+  [theme.breakpoints.up("sm")]: {
+    maxWidth: "350px",
   },
   width: "100%",
 }));

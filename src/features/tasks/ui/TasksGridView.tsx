@@ -47,7 +47,13 @@ export const TasksGridView = ({
 
   return (
     <Box
-      sx={{ position: "relative", minHeight: "100vh", pb: 8, width: "100%" }}
+      id="tasks-grid-box"
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+        pb: 8,
+        width: "calc(100vw - 32px)",
+      }}
     >
       {title && (
         <Typography variant="h6" sx={{ mb: 3 }}>
@@ -55,7 +61,7 @@ export const TasksGridView = ({
         </Typography>
       )}
 
-      <Grid container spacing={3}>
+      <Grid container>
         {categories.map((category) => {
           const categoryTasks = filteredTasks.filter(
             (task) => task.category === category
