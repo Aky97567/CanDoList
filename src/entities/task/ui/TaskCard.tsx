@@ -22,8 +22,7 @@ export const TaskCard = ({
   onEdit,
 }: TaskCardProps) => {
   const { title, category, priority, isCompleted, addedToDaily } = task;
-  const showRemoveFromDaily =
-    addedToDaily && !task.isDaily && category !== "chore";
+  const showRemoveFromDaily = addedToDaily && category !== "chore";
 
   return (
     <TaskCardContainer
@@ -82,18 +81,15 @@ export const TaskCard = ({
               <PriorityHigh />
             </IconButton>
           )}
-          {onToggleDaily &&
-            !task.isDaily &&
-            category !== "chore" &&
-            !isCompleted && (
-              <IconButton
-                size="small"
-                onClick={onToggleDaily}
-                color={addedToDaily ? "info" : "default"}
-              >
-                <Today />
-              </IconButton>
-            )}
+          {onToggleDaily && category !== "chore" && !isCompleted && (
+            <IconButton
+              size="small"
+              onClick={onToggleDaily}
+              color={addedToDaily ? "info" : "default"}
+            >
+              <Today />
+            </IconButton>
+          )}
           {showRemoveFromDaily && onRemoveFromDaily && !isCompleted && (
             <IconButton size="small" onClick={onRemoveFromDaily} color="error">
               <Today />
