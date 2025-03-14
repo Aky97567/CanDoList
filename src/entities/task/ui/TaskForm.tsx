@@ -1,6 +1,6 @@
 // src/entities/task/ui/TaskForm.tsx
-import { useState, useEffect } from 'react'
-import { 
+import { useState, useEffect } from "react";
+import {
   Dialog,
   DialogTitle,
   DialogContent,
@@ -8,58 +8,94 @@ import {
   TextField,
   Button,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem
-} from '@mui/material'
-import { Task, TaskCategory, TaskPriority } from '../model'
+  FormLabel,
+  Chip,
+  ToggleButtonGroup,
+  ToggleButton,
+  Grid,
+} from "@mui/material";
+import { Task, TaskCategory, TaskPriority } from "../model";
 
-type TaskFormData = Omit<Task, 'id' | 'isCompleted' | 'addedToDaily' | 'isDaily'>
+type TaskFormData = Omit<
+  Task,
+  "id" | "isCompleted" | "addedToDaily" | "isDaily"
+>;
 
 interface TaskFormProps {
-  open: boolean
-  onClose: () => void
-  onSubmit: (task: TaskFormData) => void
-  initialData?: Task
-  mode?: 'create' | 'edit'
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (task: TaskFormData) => void;
+  initialData?: Task;
+  mode?: "create" | "edit";
 }
 
-export const TaskForm = ({ 
-  open, 
-  onClose, 
-  onSubmit, 
+const categoryColors: Record<TaskCategory, string> = {
+  work: "#757575",
+  personal: "#2196F3",
+  green: "#4caf50",
+  chore: "#E91E63",
+};
+
+const priorityColors: Record<TaskPriority, string> = {
+  regular: "#757575",
+  high: "#f44336",
+};
+
+export const TaskForm = ({
+  open,
+  onClose,
+  onSubmit,
   initialData,
-  mode = 'create' 
+  mode = "create",
 }: TaskFormProps) => {
   const [formData, setFormData] = useState<TaskFormData>({
-    title: '',
-    category: 'personal',
-    priority: 'regular'
-  })
+    title: "",
+    category: "personal",
+    priority: "regular",
+  });
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         title: initialData.title,
         category: initialData.category,
-        priority: initialData.priority
-      })
+        priority: initialData.priority,
+      });
     }
-  }, [initialData])
+  }, [initialData]);
 
   const handleSubmit = () => {
-    onSubmit(formData)
-    if (mode === 'create') {
-      setFormData({ title: '', category: 'personal', priority: 'regular' })
+    onSubmit(formData);
+    if (mode === "create") {
+      setFormData({ title: "", category: "personal", priority: "regular" });
     }
-    onClose()
-  }
+    onClose();
+  };
 
-  const categories: TaskCategory[] = ['work', 'personal', 'green', 'chore']
+  const categories: TaskCategory[] = ["work", "personal", "green", "chore"];
+  const priorities: TaskPriority[] = ["regular", "high"];
+
+  const handleCategoryChange = (category: TaskCategory) => {
+    setFormData({ ...formData, category });
+  };
+
+  const handlePriorityChange = (
+    _: React.MouseEvent<HTMLElement>,
+    newPriority: TaskPriority | null
+  ) => {
+    if (newPriority !== null) {
+      setFormData({ ...formData, priority: newPriority });
+    }
+  };
+
+  // Function to capitalize first letter
+  const capitalize = (str: string): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>{mode === 'create' ? 'New Task' : 'Edit Task'}</DialogTitle>
+      <DialogTitle>{mode === "create" ? "New Task" : "Edit Task"}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
@@ -68,50 +104,92 @@ export const TaskForm = ({
           fullWidth
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          sx={{ mb: 2 }}
+          sx={{ mb: 3 }}
         />
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Category</InputLabel>
-          <Select
-            value={formData.category}
-            label="Category"
-            onChange={(e) => setFormData({ 
-              ...formData, 
-              category: e.target.value as TaskCategory 
-            })}
-          >
-            {categories.map(category => (
-              <MenuItem key={category} value={category}>
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </MenuItem>
+
+        <FormControl component="fieldset" fullWidth sx={{ mb: 3 }}>
+          <FormLabel component="legend" sx={{ mb: 1 }}>
+            Category
+          </FormLabel>
+          <Grid container spacing={1}>
+            {categories.map((category) => (
+              <Grid item xs={6} key={category}>
+                <Chip
+                  label={capitalize(category)}
+                  onClick={() => handleCategoryChange(category)}
+                  sx={{
+                    backgroundColor:
+                      formData.category === category
+                        ? categoryColors[category]
+                        : "transparent",
+                    color:
+                      formData.category === category ? "#fff" : "text.primary",
+                    border: `1px solid ${categoryColors[category]}`,
+                    fontWeight:
+                      formData.category === category ? "bold" : "normal",
+                    width: "100%",
+                    height: 32,
+                  }}
+                />
+              </Grid>
             ))}
-          </Select>
+          </Grid>
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel>Priority</InputLabel>
-          <Select
+
+        <FormControl component="fieldset" fullWidth>
+          <FormLabel component="legend" sx={{ mb: 1 }}>
+            Priority
+          </FormLabel>
+          <ToggleButtonGroup
             value={formData.priority}
-            label="Priority"
-            onChange={(e) => setFormData({ 
-              ...formData, 
-              priority: e.target.value as TaskPriority 
-            })}
+            exclusive
+            onChange={handlePriorityChange}
+            aria-label="task priority"
+            fullWidth
           >
-            <MenuItem value="regular">Regular</MenuItem>
-            <MenuItem value="high">High</MenuItem>
-          </Select>
+            {priorities.map((priority) => (
+              <ToggleButton
+                key={priority}
+                value={priority}
+                aria-label={priority}
+                sx={{
+                  border: "none",
+                  justifyContent: "center",
+                  "&.Mui-selected": {
+                    backgroundColor: "transparent",
+                  },
+                }}
+              >
+                <Chip
+                  label={capitalize(priority)}
+                  sx={{
+                    backgroundColor:
+                      formData.priority === priority
+                        ? priorityColors[priority]
+                        : "transparent",
+                    color:
+                      formData.priority === priority ? "#fff" : "text.primary",
+                    border: `1px solid ${priorityColors[priority]}`,
+                    fontWeight:
+                      formData.priority === priority ? "bold" : "normal",
+                    width: "100%",
+                  }}
+                />
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
         </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button 
-          onClick={handleSubmit} 
-          variant="contained" 
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
           disabled={!formData.title.trim()}
         >
-          {mode === 'create' ? 'Create' : 'Save'}
+          {mode === "create" ? "Create" : "Save"}
         </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
