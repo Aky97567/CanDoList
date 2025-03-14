@@ -1,7 +1,7 @@
 // src/features/tasks/ui/DraggableTaskList.tsx
-import { useMemo } from 'react';
-import { TaskCard } from '@/entities';
-import { Task } from '@/entities';
+import { useMemo } from "react";
+import { TaskCard } from "@/entities";
+import { Task } from "@/entities";
 import {
   DndContext,
   DragEndEvent,
@@ -10,41 +10,49 @@ import {
   closestCenter,
   useSensor,
   useSensors,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   useSortable,
-} from '@dnd-kit/sortable';
-import { Box } from '@mui/material';
+} from "@dnd-kit/sortable";
+import { Box } from "@mui/material";
 
 interface SortableTaskCardProps {
   task: Task;
   onComplete?: () => void;
+  onEdit?: (task: Task) => void;
   onTogglePriority?: () => void;
   onRemoveFromDaily?: () => void;
 }
 
 const SortableTaskCard = ({ task, ...props }: SortableTaskCardProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: task.id,
-  });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: task.id,
+    });
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    transition,
-  } : undefined;
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        transition,
+      }
+    : undefined;
 
   return (
     <div ref={setNodeRef} style={style}>
-      <Box {...attributes} {...listeners} sx={{ 
-        cursor: 'grab',
-        '& .MuiButtonBase-root': {
-          cursor: 'pointer',
-          pointerEvents: 'auto',
-        }
-      }}>
+      <Box
+        {...attributes}
+        {...listeners}
+        sx={{
+          cursor: "grab",
+          "& .MuiButtonBase-root": {
+            cursor: "pointer",
+            pointerEvents: "auto",
+          },
+        }}
+      >
         <TaskCard task={task} {...props} />
       </Box>
     </div>
@@ -53,6 +61,7 @@ const SortableTaskCard = ({ task, ...props }: SortableTaskCardProps) => {
 
 interface DraggableTaskListProps {
   tasks: Task[];
+  onEdit?: (task: Task) => void;
   onReorder: (oldIndex: number, newIndex: number) => void;
   onComplete: (taskId: string) => void;
   onTogglePriority: (taskId: string) => void;
@@ -61,6 +70,7 @@ interface DraggableTaskListProps {
 
 export const DraggableTaskList = ({
   tasks,
+  onEdit,
   onReorder,
   onComplete,
   onTogglePriority,
@@ -98,6 +108,7 @@ export const DraggableTaskList = ({
         {tasks.map((task) => (
           <SortableTaskCard
             key={task.id}
+            onEdit={onEdit}
             task={task}
             onComplete={() => onComplete(task.id)}
             onTogglePriority={() => onTogglePriority(task.id)}

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Box, Typography, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { TaskForm } from "@/entities";
+import { Task, TaskForm } from "@/entities";
 import { useTasksState } from "../model";
 import { DraggableTaskList } from "./DraggableTaskList";
 
@@ -14,8 +14,17 @@ export const DailyPlanView = () => {
     toggleTaskPriority,
     toggleDailyTask,
     reorderTasks,
+    updateTask,
   } = useTasksState();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  const handleEditTask = (taskData: Omit<Task, "id" | "isCompleted">) => {
+    if (editingTask) {
+      updateTask(editingTask.id, taskData);
+      setEditingTask(null);
+    }
+  };
 
   // Filter for daily tasks and sort by rank (ascending order)
   // With numeric ranks stored as strings, smaller numbers appear at the top
@@ -57,6 +66,7 @@ export const DailyPlanView = () => {
         <Box sx={{ mb: 4 }}>
           <DraggableTaskList
             tasks={dailyTasks}
+            onEdit={setEditingTask}
             onReorder={reorderTasks}
             onComplete={toggleTaskCompletion}
             onTogglePriority={toggleTaskPriority}
@@ -82,6 +92,14 @@ export const DailyPlanView = () => {
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         onSubmit={(data) => createTask({ ...data, isDaily: true })}
+      />
+
+      <TaskForm
+        open={Boolean(editingTask)}
+        onClose={() => setEditingTask(null)}
+        onSubmit={handleEditTask}
+        initialData={editingTask ?? undefined}
+        mode="edit"
       />
     </Box>
   );
