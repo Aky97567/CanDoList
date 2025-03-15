@@ -8,7 +8,6 @@ export interface Task {
   category: TaskCategory;
   priority: TaskPriority;
   isCompleted: boolean;
-  isDaily?: boolean;
   isOneTime?: boolean;
   addedToDaily?: boolean;
   rank?: string;

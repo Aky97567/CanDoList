@@ -29,9 +29,7 @@ export const useTasksState = () => {
     taskData: Omit<Task, "id" | "isCompleted" | "rank">
   ) => {
     const dailyTasks = tasks.filter(
-      (t) =>
-        !t.isCompleted &&
-        (t.isDaily || t.addedToDaily || t.category === "chore")
+      (t) => !t.isCompleted && (t.addedToDaily || t.category === "chore")
     );
 
     const rank =
@@ -46,7 +44,7 @@ export const useTasksState = () => {
       ...taskData,
       id: Date.now().toString(),
       isCompleted: false,
-      addedToDaily: taskData.isDaily || taskData.category === "chore" || false,
+      addedToDaily: taskData.category === "chore" || false,
       rank,
     };
     await saveTasks([...tasks, newTask]);
@@ -66,9 +64,7 @@ export const useTasksState = () => {
     // Get daily tasks in the same order as they're displayed
     const dailyTasks = tasks
       .filter(
-        (t) =>
-          !t.isCompleted &&
-          (t.isDaily || t.addedToDaily || t.category === "chore")
+        (t) => !t.isCompleted && (t.addedToDaily || t.category === "chore")
       )
       .sort((a, b) => {
         if (!a.rank) return 1;
@@ -119,8 +115,7 @@ export const useTasksState = () => {
         return {
           ...task,
           isCompleted: false,
-          addedToDaily:
-            task.isDaily || task.category === "chore" || task.addedToDaily,
+          addedToDaily: task.category === "chore" || task.addedToDaily,
         };
       }
 

@@ -31,8 +31,7 @@ export const DailyPlanView = () => {
   const dailyTasks = tasks
     .filter(
       (task) =>
-        !task.isCompleted &&
-        (task.isDaily || task.addedToDaily || task.category === "chore")
+        !task.isCompleted && (task.addedToDaily || task.category === "chore")
     )
     .sort((a, b) => {
       // Handle missing ranks
@@ -91,7 +90,7 @@ export const DailyPlanView = () => {
       <TaskForm
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        onSubmit={(data) => createTask({ ...data, isDaily: true })}
+        onSubmit={(data) => createTask({ ...data })}
       />
 
       <TaskForm
