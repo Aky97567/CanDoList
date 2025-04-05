@@ -4,7 +4,11 @@ import { Task, TaskForm, TaskCategory } from "@/entities";
 import { useTasksState } from "../model";
 import { TasksGridView } from "./TasksGridView";
 
-export const AllTasksView = () => {
+interface AllTasksViewProps {
+  hideWorkTasks?: boolean;
+}
+
+export const AllTasksView = ({ hideWorkTasks = false }: AllTasksViewProps) => {
   const {
     tasks,
     createTask,
@@ -25,12 +29,17 @@ export const AllTasksView = () => {
 
   const categories: TaskCategory[] = ["work", "personal", "green"];
 
+  const taskFilter = (task: Task) => {
+    return !task.isCompleted && !(hideWorkTasks && task.category === "work");
+  };
+
   return (
     <>
       <TasksGridView
+        title="All Tasks"
         categories={categories}
         tasks={tasks}
-        taskFilter={(task) => !task.isCompleted}
+        taskFilter={taskFilter}
         onComplete={toggleTaskCompletion}
         onTogglePriority={toggleTaskPriority}
         onToggleDaily={toggleDailyTask}

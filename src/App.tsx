@@ -5,10 +5,12 @@ import { Navbar } from "@/widgets";
 import { View } from "@/shared";
 import { AllTasksView, CompletedTasksView, DailyPlanView } from "@/features";
 import { StorageProvider } from "@/app/";
+import { useWorkTasksPreference } from "@/features/tasks/model";
 import { AppContainer } from "./styles";
 
 function App() {
   const [currentView, setCurrentView] = useState<View>("daily-plan");
+  const { hideWorkTasks, toggleWorkTasks } = useWorkTasksPreference();
 
   return (
     <StorageProvider>
@@ -21,12 +23,17 @@ function App() {
           minWidth: "100vw",
         }}
       >
-        <Navbar currentView={currentView} onViewChange={setCurrentView} />
+        <Navbar 
+          currentView={currentView} 
+          onViewChange={setCurrentView} 
+          hideWorkTasks={hideWorkTasks}
+          onToggleWorkTasks={toggleWorkTasks}
+        />
         <Toolbar /> {/* Spacer for fixed AppBar */}
         <AppContainer component="main">
-          {currentView === "all-tasks" && <AllTasksView />}
-          {currentView === "daily-plan" && <DailyPlanView />}
-          {currentView === "completed" && <CompletedTasksView />}
+          {currentView === "all-tasks" && <AllTasksView hideWorkTasks={hideWorkTasks} />}
+          {currentView === "daily-plan" && <DailyPlanView hideWorkTasks={hideWorkTasks} />}
+          {currentView === "completed" && <CompletedTasksView hideWorkTasks={hideWorkTasks} />}
         </AppContainer>
       </Box>
     </StorageProvider>

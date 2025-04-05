@@ -6,7 +6,13 @@ import { Task, TaskForm } from "@/entities";
 import { useTasksState } from "../model";
 import { DraggableTaskList } from "./DraggableTaskList";
 
-export const DailyPlanView = () => {
+interface DailyPlanViewProps {
+  hideWorkTasks?: boolean;
+}
+
+export const DailyPlanView = ({
+  hideWorkTasks = false,
+}: DailyPlanViewProps) => {
   const {
     tasks,
     createTask,
@@ -31,7 +37,10 @@ export const DailyPlanView = () => {
   const dailyTasks = tasks
     .filter(
       (task) =>
-        !task.isCompleted && (task.addedToDaily || task.category === "chore")
+        !task.isCompleted &&
+        (task.addedToDaily || task.category === "chore") &&
+        // Filter out work tasks if hideWorkTasks is true
+        !(hideWorkTasks && task.category === "work")
     )
     .sort((a, b) => {
       // Handle missing ranks
