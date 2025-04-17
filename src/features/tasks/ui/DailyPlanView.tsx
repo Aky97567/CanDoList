@@ -99,7 +99,7 @@ export const DailyPlanView = ({
       <TaskForm
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        onSubmit={(data) => createTask({ ...data })}
+        onSubmit={(data) => createTask({ ...data, addedToDaily: true })}
       />
 
       <TaskForm
