@@ -1,5 +1,5 @@
 // src/features/tasks/ui/AllTasksView.tsx
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Task, TaskForm, TaskCategory } from "@/entities";
 import { useTasksState } from "../model";
 import { TasksGridView } from "./TasksGridView";
@@ -7,6 +7,19 @@ import { TasksGridView } from "./TasksGridView";
 interface AllTasksViewProps {
   hideWorkTasks?: boolean;
 }
+
+const getPriorityValue = (priority: string): number => {
+  switch (priority) {
+    case "high":
+      return 0;
+    case "regular":
+      return 1;
+    case "low":
+      return 2;
+    default:
+      return 3;
+  }
+};
 
 export const AllTasksView = ({ hideWorkTasks = false }: AllTasksViewProps) => {
   const {
@@ -19,6 +32,12 @@ export const AllTasksView = ({ hideWorkTasks = false }: AllTasksViewProps) => {
   } = useTasksState();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  const sortedTasks = useMemo(() => {
+    return [...tasks].sort(
+      (a, b) => getPriorityValue(a.priority) - getPriorityValue(b.priority)
+    );
+  }, [tasks]);
 
   const handleEditTask = (taskData: Omit<Task, "id" | "isCompleted">) => {
     if (editingTask) {
@@ -38,7 +57,7 @@ export const AllTasksView = ({ hideWorkTasks = false }: AllTasksViewProps) => {
       <TasksGridView
         title="All Tasks"
         categories={categories}
-        tasks={tasks}
+        tasks={sortedTasks}
         taskFilter={taskFilter}
         onComplete={toggleTaskCompletion}
         onTogglePriority={toggleTaskPriority}
