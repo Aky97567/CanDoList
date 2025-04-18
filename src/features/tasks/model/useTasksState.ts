@@ -44,7 +44,8 @@ export const useTasksState = () => {
       ...taskData,
       id: Date.now().toString(),
       isCompleted: false,
-      addedToDaily: taskData.category === "chore" || false,
+      addedToDaily:
+        taskData.category === "chore" || taskData.addedToDaily || false,
       rank,
     };
     await saveTasks([...tasks, newTask]);
