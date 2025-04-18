@@ -1,25 +1,34 @@
 // src/entities/task/ui/TaskCard.tsx
 import { CardContent, Typography, IconButton, Box } from "@mui/material";
-import { Check, Today, Undo, PriorityHigh, Edit } from "@mui/icons-material";
+import {
+  Check,
+  Delete,
+  Edit,
+  PriorityHigh,
+  Today,
+  Undo,
+} from "@mui/icons-material";
 import { TaskCardContainer } from "./styles";
 import { Task, getCategoryColor } from "../model";
 
 interface TaskCardProps {
   task: Task;
   onComplete?: () => void;
+  onDelete?: () => void;
+  onEdit?: (task: Task) => void;
+  onRemoveFromDaily?: () => void;
   onTogglePriority?: () => void;
   onToggleDaily?: () => void;
-  onRemoveFromDaily?: () => void;
-  onEdit?: (task: Task) => void;
 }
 
 export const TaskCard = ({
   task,
   onComplete,
+  onDelete,
+  onEdit,
+  onRemoveFromDaily,
   onTogglePriority,
   onToggleDaily,
-  onRemoveFromDaily,
-  onEdit,
 }: TaskCardProps) => {
   const { title, category, priority, isCompleted, addedToDaily } = task;
   const showRemoveFromDaily = addedToDaily && category !== "chore";
@@ -109,6 +118,15 @@ export const TaskCard = ({
           {isCompleted && onComplete && (
             <IconButton size="small" onClick={onComplete} color="primary">
               <Undo />
+            </IconButton>
+          )}
+          {isCompleted && (
+            <IconButton
+              size="small"
+              onClick={() => onDelete && onDelete()}
+              color="error"
+            >
+              <Delete />
             </IconButton>
           )}
           {!isCompleted && onComplete && (

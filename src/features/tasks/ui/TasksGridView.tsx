@@ -10,6 +10,7 @@ interface TasksGridViewProps {
   emptyStateMessage?: string;
   taskFilter: (task: Task) => boolean;
   onComplete: (taskId: string) => void;
+  onDelete?: (taskId: string) => void;
   onEdit?: (task: Task) => void;
   onTogglePriority?: (taskId: string) => void;
   onToggleDaily?: (taskId: string) => void;
@@ -23,6 +24,7 @@ export const TasksGridView = ({
   emptyStateMessage,
   taskFilter,
   onComplete,
+  onDelete,
   onEdit,
   onTogglePriority,
   onToggleDaily,
@@ -93,6 +95,7 @@ export const TasksGridView = ({
                     key={task.id}
                     task={task}
                     onComplete={() => onComplete(task.id)}
+                    onDelete={onDelete ? () => onDelete(task.id) : undefined}
                     onEdit={onEdit ? () => onEdit(task) : undefined}
                     onTogglePriority={
                       onTogglePriority

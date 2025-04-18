@@ -11,7 +11,8 @@ interface CompletedTasksViewProps {
 export const CompletedTasksView = ({
   hideWorkTasks = false,
 }: CompletedTasksViewProps) => {
-  const { tasks, toggleTaskCompletion, updateTask } = useTasksState();
+  const { deleteTask, tasks, toggleTaskCompletion, updateTask } =
+    useTasksState();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const categories: TaskCategory[] = ["work", "personal", "green", "chore"];
 
@@ -34,6 +35,7 @@ export const CompletedTasksView = ({
         tasks={tasks}
         taskFilter={taskFilter}
         onComplete={toggleTaskCompletion}
+        onDelete={deleteTask}
         onEdit={setEditingTask}
         emptyStateMessage="No completed tasks yet"
       />
