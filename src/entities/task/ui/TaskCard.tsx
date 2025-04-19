@@ -120,7 +120,7 @@ export const TaskCard = ({
               <Undo />
             </IconButton>
           )}
-          {isCompleted && (
+          {isCompleted && task.category !== "chore" && (
             <IconButton
               size="small"
               onClick={() => onDelete && onDelete()}
