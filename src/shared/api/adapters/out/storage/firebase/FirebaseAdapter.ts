@@ -6,6 +6,9 @@ import {
   doc,
   query,
   orderBy,
+  where,
+  getDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { Task } from "@/entities";
 import { TaskStorage } from "@/shared/api/ports/out/storage/";
@@ -14,6 +17,10 @@ import { db, CURRENT_USER_ID } from "./config";
 export class FirebaseAdapter implements TaskStorage {
   private getCollectionPath() {
     return `users/${CURRENT_USER_ID}/tasks`;
+  }
+
+  private getArchiveCollectionPath() {
+    return `users/${CURRENT_USER_ID}/archive`;
   }
 
   async getTasks(): Promise<Task[]> {
@@ -106,6 +113,163 @@ export class FirebaseAdapter implements TaskStorage {
       console.log("FirebaseAdapter: Rank updates committed successfully");
     } catch (error) {
       console.error("Error updating task ranks in Firebase:", error);
+      throw error;
+    }
+  }
+
+  async archiveTask(taskId: string): Promise<void> {
+    try {
+      console.log("FirebaseAdapter: Archiving task with ID:", taskId);
+      const batch = writeBatch(db);
+      const collectionPath = this.getCollectionPath();
+      const taskDocRef = doc(db, collectionPath, taskId);
+
+      // First, get the task data
+      const taskSnapshot = await getDoc(taskDocRef);
+
+      if (!taskSnapshot.exists()) {
+        throw new Error(`Task with ID ${taskId} not found`);
+      }
+
+      const taskData = taskSnapshot.data();
+
+      // Add completion date and other metadata
+      const archivedTaskData = {
+        ...taskData,
+        completedDate: new Date().toISOString(),
+        archivedAt: Timestamp.now(),
+      };
+
+      // Store in archive collection
+      const archiveCollectionPath = this.getArchiveCollectionPath();
+      const archiveDocRef = doc(db, archiveCollectionPath, taskId);
+
+      // Add the task to the archive with its data including completion date
+      batch.set(archiveDocRef, archivedTaskData);
+
+      // Delete the original task
+      batch.delete(taskDocRef);
+
+      console.log("FirebaseAdapter: Committing batch...");
+      await batch.commit();
+      console.log("FirebaseAdapter: Task archived successfully");
+    } catch (error) {
+      console.error("Error archiving task in Firebase:", error);
+      throw error;
+    }
+  }
+
+  async getArchivedTasks(): Promise<Record<string, Task[]>> {
+    try {
+      console.log("FirebaseAdapter: Fetching archived tasks");
+
+      const archiveQuery = query(
+        collection(db, this.getArchiveCollectionPath()),
+        orderBy("completedDate", "desc")
+      );
+
+      const snapshot = await getDocs(archiveQuery);
+      console.log(
+        "FirebaseAdapter: Got archived tasks snapshot, count:",
+        snapshot.size
+      );
+
+      // Initialize result object
+      const tasksByDate: Record<string, Task[]> = {};
+
+      // Group tasks by date
+      snapshot.docs.forEach((doc) => {
+        const task = { id: doc.id, ...doc.data() } as Task & {
+          completedDate: string;
+        };
+
+        // Extract just the date part (YYYY-MM-DD) from the ISO string
+        const dateOnly = task.completedDate.split("T")[0];
+
+        if (!tasksByDate[dateOnly]) {
+          tasksByDate[dateOnly] = [];
+        }
+
+        tasksByDate[dateOnly].push(task as Task);
+      });
+
+      return tasksByDate;
+    } catch (error) {
+      console.error("Error fetching archived tasks from Firebase:", error);
+      throw error;
+    }
+  }
+
+  async getArchivedTasksForDate(date: string): Promise<Task[]> {
+    try {
+      console.log(`FirebaseAdapter: Fetching archived tasks for date: ${date}`);
+
+      // Create start and end timestamps for the given date
+      const startDate = new Date(`${date}T00:00:00.000Z`).toISOString();
+      const endDate = new Date(`${date}T23:59:59.999Z`).toISOString();
+
+      const archiveQuery = query(
+        collection(db, this.getArchiveCollectionPath()),
+        orderBy("completedDate", "asc"),
+        where("completedDate", ">=", startDate),
+        where("completedDate", "<=", endDate)
+      );
+
+      const snapshot = await getDocs(archiveQuery);
+      console.log(
+        `FirebaseAdapter: Got archived tasks for ${date}, count:`,
+        snapshot.size
+      );
+
+      const tasks = snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as Task)
+      );
+
+      return tasks;
+    } catch (error) {
+      console.error(`Error fetching archived tasks for date ${date}:`, error);
+      throw error;
+    }
+  }
+
+  async getArchivedTasksForDateRange(
+    startDate: string,
+    endDate: string
+  ): Promise<Task[]> {
+    try {
+      console.log(
+        `FirebaseAdapter: Fetching archived tasks from ${startDate} to ${endDate}`
+      );
+
+      // Create start and end timestamps
+      const startTimestamp = new Date(
+        `${startDate}T00:00:00.000Z`
+      ).toISOString();
+      const endTimestamp = new Date(`${endDate}T23:59:59.999Z`).toISOString();
+
+      const archiveQuery = query(
+        collection(db, this.getArchiveCollectionPath()),
+        orderBy("completedDate", "asc"),
+        where("completedDate", ">=", startTimestamp),
+        where("completedDate", "<=", endTimestamp)
+      );
+
+      const snapshot = await getDocs(archiveQuery);
+      console.log(
+        `FirebaseAdapter: Got archived tasks from ${startDate} to ${endDate}, count:`,
+        snapshot.size
+      );
+
+      const tasks = snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as Task)
+      );
+
+      return tasks;
+    } catch (error) {
+      console.error(
+        `Error fetching archived tasks from ${startDate} to ${endDate}:`,
+        error
+      );
       throw error;
     }
   }

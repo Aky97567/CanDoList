@@ -147,10 +147,11 @@ export const useTasksState = () => {
   };
 
   const deleteTask = async (taskId: string) => {
-    console.log("Deleting task with ID:", taskId);
-    // !TODO add logic to archive task for motivational screen DB
-    // const newTasks = tasks.filter((task) => task.id !== taskId);
-    // await saveTasks(newTasks);
+    await storage.archiveTask(taskId);
+
+    // Remove the task from the UI
+    const newTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(newTasks);
   };
 
   return {

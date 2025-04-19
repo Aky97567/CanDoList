@@ -1,7 +1,8 @@
 // src/widgets/navigation/ui/NavbarActions.tsx
-import { View } from "@/shared";
-import { NavButton } from "./styles";
-import { ElementType } from "react";
+import { View } from '@/shared';
+import { NavButton } from './styles';
+import { ElementType } from 'react';
+import TimelineIcon from '@mui/icons-material/Timeline';
 
 interface NavbarActionsProps {
   currentView: View;
@@ -19,25 +20,33 @@ export const NavbarActions = ({
   return (
     <>
       <Component
-        onClick={() => onViewChange("daily-plan")}
-        className={currentView === "daily-plan" ? "active" : ""}
+        onClick={() => onViewChange('daily-plan')}
+        className={currentView === 'daily-plan' ? 'active' : ''}
         sx={sx}
       >
         Today
       </Component>
       <Component
-        onClick={() => onViewChange("all-tasks")}
-        className={currentView === "all-tasks" ? "active" : ""}
+        onClick={() => onViewChange('all-tasks')}
+        className={currentView === 'all-tasks' ? 'active' : ''}
         sx={sx}
       >
         All Tasks
       </Component>
       <Component
-        onClick={() => onViewChange("completed")}
-        className={currentView === "completed" ? "active" : ""}
+        onClick={() => onViewChange('completed')}
+        className={currentView === 'completed' ? 'active' : ''}
         sx={sx}
       >
         Completed
+      </Component>
+      <Component
+        onClick={() => onViewChange('timeline')}
+        className={currentView === 'timeline' ? 'active' : ''}
+        sx={sx}
+      >
+        <TimelineIcon sx={{ mr: 0.5, fontSize: '1rem' }} />
+        Timeline
       </Component>
     </>
   );

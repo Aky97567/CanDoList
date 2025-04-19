@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Box, Toolbar } from "@mui/material";
 import { Navbar } from "@/widgets";
 import { View } from "@/shared";
-import { AllTasksView, CompletedTasksView, DailyPlanView } from "@/features";
+import { AllTasksView, CompletedTasksView, DailyPlanView, Timeline } from "@/features";
 import { StorageProvider } from "@/app/";
 import { useWorkTasksPreference } from "@/features/tasks/model";
 import { AppContainer } from "./styles";
@@ -34,6 +34,7 @@ function App() {
           {currentView === "all-tasks" && <AllTasksView hideWorkTasks={hideWorkTasks} />}
           {currentView === "daily-plan" && <DailyPlanView hideWorkTasks={hideWorkTasks} />}
           {currentView === "completed" && <CompletedTasksView hideWorkTasks={hideWorkTasks} />}
+          {currentView === "timeline" && <Timeline hideWorkTasks={hideWorkTasks} />}
         </AppContainer>
       </Box>
     </StorageProvider>
