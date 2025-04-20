@@ -27,3 +27,18 @@ export const getCategoryColor = (category: TaskCategory) => {
       return "#757575";
   }
 };
+
+export const getCategoryDisplayName = (category: TaskCategory) => {
+  switch (category) {
+    case "work":
+      return "Work";
+    case "personal":
+      return "Personal";
+    case "chore":
+      return "Habit";
+    case "green":
+      return "Breakthrough";
+    default:
+      return "Unknown";
+  }
+};

@@ -14,7 +14,13 @@ import {
   ToggleButton,
   Grid,
 } from "@mui/material";
-import { Task, TaskCategory, TaskPriority } from "../model";
+import {
+  getCategoryColor,
+  getCategoryDisplayName,
+  Task,
+  TaskCategory,
+  TaskPriority,
+} from "../model";
 
 type TaskFormData = Omit<
   Task,
@@ -28,13 +34,6 @@ interface TaskFormProps {
   initialData?: Task;
   mode?: "create" | "edit";
 }
-
-const categoryColors: Record<TaskCategory, string> = {
-  work: "#757575",
-  personal: "#2196F3",
-  green: "#4caf50",
-  chore: "#E91E63",
-};
 
 const priorityColors: Record<TaskPriority, string> = {
   regular: "#757575",
@@ -115,16 +114,16 @@ export const TaskForm = ({
             {categories.map((category) => (
               <Grid item xs={6} key={category}>
                 <Chip
-                  label={capitalize(category)}
+                  label={capitalize(getCategoryDisplayName(category))}
                   onClick={() => handleCategoryChange(category)}
                   sx={{
                     backgroundColor:
                       formData.category === category
-                        ? categoryColors[category]
+                        ? getCategoryColor(category)
                         : "transparent",
                     color:
                       formData.category === category ? "#fff" : "text.primary",
-                    border: `1px solid ${categoryColors[category]}`,
+                    border: `1px solid ${getCategoryColor(category)}`,
                     fontWeight:
                       formData.category === category ? "bold" : "normal",
                     width: "100%",

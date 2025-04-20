@@ -1,7 +1,12 @@
 // src/features/tasks/ui/TasksGridView.tsx
 import { Box, Grid, Paper, Typography, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { Task, TaskCard, TaskCategory } from "@/entities";
+import {
+  getCategoryDisplayName,
+  Task,
+  TaskCard,
+  TaskCategory,
+} from "@/entities";
 
 interface TasksGridViewProps {
   title?: string;
@@ -88,7 +93,7 @@ export const TasksGridView = ({
                     textTransform: "capitalize",
                   }}
                 >
-                  {category}
+                  {getCategoryDisplayName(category)}
                 </Typography>
                 {categoryTasks.map((task) => (
                   <TaskCard
