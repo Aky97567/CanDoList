@@ -85,7 +85,7 @@ The project follows a feature-oriented architecture:
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/candolist.git
+git clone https://github.com/aky97567/candolist.git
 cd candolist
 ```
 
