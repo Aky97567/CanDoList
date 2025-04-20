@@ -4,7 +4,7 @@ CanDoList is a modern task management application that tackles a common problem 
 
 ## Core Philosophy
 
-CanDoList separates your master task collection from your daily focus. This allows you to:
+CanDoList separates your main task collection from your daily focus. This allows you to:
 
 - Capture all tasks without creating mental burden
 - Focus only on what's relevant for today
@@ -16,7 +16,7 @@ CanDoList separates your master task collection from your daily focus. This allo
 - **Multiple Task Views**:
 
   - **Daily Plan**: Your focused today view - the real "to-do list"
-  - **All Tasks**: Your master collection of tasks (the "can do" list)
+  - **All Tasks**: Your main collection of tasks (the "can do" list)
   - **Completed Tasks**: Review tasks you've completed
   - **Timeline**: A motivational GitHub-style contribution view of your archived tasks
 
