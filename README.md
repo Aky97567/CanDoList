@@ -1,13 +1,22 @@
-# TaskFlow - Personal Task Management System
+# CanDoList - Intelligent Task Management Without Overwhelm
 
-TaskFlow is a modern task management application built with React, TypeScript, and Firebase. It helps you organize your tasks across different categories and views while providing a motivational timeline to track your progress.
+CanDoList is a modern task management application that tackles a common problem with traditional to-do lists: the overwhelming feeling of seeing all your tasks at once. With CanDoList, you can keep track of everything you need to do while focusing only on what matters today.
+
+## Core Philosophy
+
+CanDoList separates your master task collection from your daily focus. This allows you to:
+
+- Capture all tasks without creating mental burden
+- Focus only on what's relevant for today
+- Balance work and personal tasks with dedicated modes
+- Track your progress with a motivational timeline
 
 ## Features
 
 - **Multiple Task Views**:
 
-  - **Daily Plan**: Focus on today's tasks
-  - **All Tasks**: View and manage all your incomplete tasks
+  - **Daily Plan**: Your focused today view - the real "to-do list"
+  - **All Tasks**: Your master collection of tasks (the "can do" list)
   - **Completed Tasks**: Review tasks you've completed
   - **Timeline**: A motivational GitHub-style contribution view of your archived tasks
 
@@ -18,18 +27,32 @@ TaskFlow is a modern task management application built with React, TypeScript, a
   - **Breakthrough**: Tasks you might be avoiding due to mental blocks
   - **Habit**: Recurring tasks that appear daily (supplements, exercise, etc.)
 
-- **Rich Task Management**:
+- **Work/Life Balance Modes**:
 
+  - **After Work/Weekend/Vacation Mode**: Hides all work tasks
+  - **Work Mode** (planned): Focus exclusively on work tasks
+
+- **Rich Task Management**:
   - Prioritize tasks
   - Complete tasks
   - Archive completed tasks
   - Add tasks to your daily plan
   - Track recurring habits
 
-- **Additional Features**:
-  - Filter work tasks in/out of view
-  - Drag-and-drop task reordering
-  - Task archiving with completion history
+## Task Workflow
+
+### Standard Tasks (Personal, Work, Breakthrough)
+
+1. Create in All Tasks view
+2. Add selected tasks to Daily Plan
+3. Complete tasks when finished
+4. Archive completed tasks
+
+### Habit Tasks
+
+- Automatically appear in Daily Plan
+- Can be completed but will reappear the next day
+- Cannot be deleted as they are recurring
 
 ## Tech Stack
 
@@ -62,8 +85,8 @@ The project follows a feature-oriented architecture:
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/taskflow.git
-cd taskflow
+git clone https://github.com/yourusername/candolist.git
+cd candolist
 ```
 
 2. Install dependencies
@@ -95,24 +118,6 @@ npm run dev
 yarn dev
 ```
 
-## Usage
-
-### Task Management Workflow
-
-1. **Create tasks** in various categories
-2. **Add important tasks** to your daily plan
-3. **Complete tasks** when finished
-4. **Archive completed tasks** to track your progress over time
-5. **Maintain habits** with recurring tasks
-
-### Habit Tasks
-
-Habit tasks represent recurring activities like taking supplements or daily routines. They:
-
-- Always appear in the Daily Plan view
-- Can be completed but will reappear the next day
-- Cannot be deleted as they are intended to be recurring
-
 ## Development
 
 ### Available Scripts
@@ -136,4 +141,4 @@ The project uses a modular architecture that makes it easy to extend:
 
 ---
 
-_Note: TaskFlow is a personal project and is continuously evolving._
+_CanDoList: Focus on what matters today, while keeping track of everything you can do._
