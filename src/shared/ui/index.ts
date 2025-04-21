@@ -1,3 +1,4 @@
 // src/shared/ui/index.ts
-export * from './LoadingState';
 export * from './ErrorState';
+export * from './LoadingState';
+export * from './Heatmap';

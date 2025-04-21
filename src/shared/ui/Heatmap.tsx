@@ -1,34 +1,72 @@
-// src/features/timeline/ui/TimelineHeatmap.tsx
+// src/shared/ui/Heatmap.tsx
 import { useMemo, useRef, useEffect, useState } from 'react';
 import { Box, Typography, Tooltip, useTheme } from '@mui/material';
-import { TimelineData } from '../model';
 
-interface TimelineHeatmapProps {
-  data: TimelineData;
-  onDateClick: (date: string) => void;
+export type HeatmapData = Record<string, number>;
+
+interface HeatmapProps {
+  data: HeatmapData;
+  onDateClick?: (date: string) => void;
   startDate: string;
   endDate: string;
-  selectedDate: string | null;
+  selectedDate?: string | null;
+  colorScale?: (value: number) => string;
+  tooltipFormatter?: (date: string, value: number) => string;
 }
 
-export const TimelineHeatmap = ({
+export const Heatmap = ({
   data,
   onDateClick,
   startDate,
   endDate,
-  selectedDate,
-}: TimelineHeatmapProps) => {
+  selectedDate = null,
+  colorScale,
+  tooltipFormatter,
+}: HeatmapProps) => {
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const dayRefs = useRef<(HTMLElement | null)[][]>([]);
   const firstWeekDayRefs = useRef<(HTMLElement | null)[]>([]);
+
+  // Fix the useState declarations to avoid destructuring issues
   const [monthLabelPositions, setMonthLabelPositions] = useState<
     { month: string; position: number }[]
   >([]);
+
   const [dayLabelPositions, setDayLabelPositions] = useState<
     { position: number; height: number }[]
   >([]);
+
   const [isInitialRender, setIsInitialRender] = useState(true);
+
+  // Default color scale function
+  const defaultColorScale = (value: number) => {
+    if (value === 0) return theme.palette.action.disabledBackground;
+
+    // Find max value for scaling
+    const maxValue = Math.max(1, ...Object.values(data));
+
+    // Scale from light to dark green
+    const intensity = Math.min(0.9, 0.2 + (value / maxValue) * 0.8);
+    return `rgba(76, 175, 80, ${intensity})`;
+  };
+
+  // Use provided color scale or default
+  const getColor = colorScale || defaultColorScale;
+
+  // Default tooltip formatter
+  const defaultTooltipFormatter = (date: string, value: number) => {
+    const formattedDate = new Date(date).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    return `${formattedDate}: ${value}`;
+  };
+
+  // Use provided tooltip formatter or default
+  const formatTooltip = tooltipFormatter || defaultTooltipFormatter;
 
   // Generate days based on provided date range
   const days = useMemo(() => {
@@ -123,35 +161,6 @@ export const TimelineHeatmap = ({
 
     return result;
   }, [weeks]);
-
-  // Calculate color intensity based on task count
-  const getColorIntensity = (date: string) => {
-    if (!date) return 'transparent';
-
-    const taskCount = data[date]?.length || 0;
-    if (taskCount === 0) return theme.palette.action.disabledBackground;
-
-    // Find max task count for scaling
-    const maxTaskCount = Math.max(
-      1,
-      ...Object.values(data).map((tasks) => tasks.length)
-    );
-
-    // Scale from light to dark green
-    const intensity = Math.min(0.9, 0.2 + (taskCount / maxTaskCount) * 0.8);
-    return `rgba(76, 175, 80, ${intensity})`;
-  };
-
-  // Format date for tooltip in a more human-readable format
-  const formatDateForTooltip = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   // Reset refs when data changes
   useEffect(() => {
@@ -312,9 +321,7 @@ export const TimelineHeatmap = ({
             {week.map((day, dayIndex) => (
               <Tooltip
                 key={`${weekIndex}-${dayIndex}`}
-                title={`${formatDateForTooltip(day)}: ${
-                  data[day]?.length || 0
-                } tasks completed`}
+                title={formatTooltip(day, data[day] || 0)}
                 arrow
                 placement="top"
               >
@@ -339,19 +346,21 @@ export const TimelineHeatmap = ({
                     mb: 0.5,
                     ml: 0.5,
                     borderRadius: 0.5,
-                    cursor: 'pointer',
-                    backgroundColor: getColorIntensity(day),
+                    cursor: onDateClick ? 'pointer' : 'default',
+                    backgroundColor: getColor(data[day] || 0),
                     border: day === selectedDate ? '1px solid' : 'none',
                     borderColor:
                       day === selectedDate
                         ? theme.palette.primary.main
                         : 'transparent',
-                    '&:hover': {
-                      outline: '1px solid',
-                      outlineColor: theme.palette.primary.main,
-                    },
+                    '&:hover': onDateClick
+                      ? {
+                          outline: '1px solid',
+                          outlineColor: theme.palette.primary.main,
+                        }
+                      : {},
                   }}
-                  onClick={() => onDateClick(day)}
+                  onClick={() => onDateClick && onDateClick(day)}
                 />
               </Tooltip>
             ))}
