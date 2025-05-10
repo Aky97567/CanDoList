@@ -1,7 +1,7 @@
 // src/features/timeline/ui/TimelineHeatmap.tsx
-import { useMemo, useRef, useEffect, useState } from 'react';
-import { Box, Typography, Tooltip, useTheme } from '@mui/material';
-import { TimelineData } from '../model';
+import { useMemo, useRef, useEffect, useState } from "react";
+import { Box, Typography, Tooltip, useTheme } from "@mui/material";
+import { TimelineData } from "../model";
 
 interface TimelineHeatmapProps {
   data: TimelineData;
@@ -44,7 +44,7 @@ export const TimelineHeatmap = ({
 
     const current = new Date(start);
     while (current <= end) {
-      result.push(current.toISOString().split('T')[0]);
+      result.push(current.toISOString().split("T")[0]);
       current.setDate(current.getDate() + 1);
     }
 
@@ -65,7 +65,7 @@ export const TimelineHeatmap = ({
       // Calculate days before our period
       const paddingDate = new Date(days[0]);
       paddingDate.setDate(paddingDate.getDate() - (firstDayOfWeek - i));
-      currentWeek.push(paddingDate.toISOString().split('T')[0]);
+      currentWeek.push(paddingDate.toISOString().split("T")[0]);
     }
 
     days.forEach((day) => {
@@ -90,7 +90,7 @@ export const TimelineHeatmap = ({
       for (let i = lastDayOfWeek + 1; i <= 6; i++) {
         const paddingDate = new Date(currentWeek[currentWeek.length - 1]);
         paddingDate.setDate(paddingDate.getDate() + (i - lastDayOfWeek));
-        currentWeek.push(paddingDate.toISOString().split('T')[0]);
+        currentWeek.push(paddingDate.toISOString().split("T")[0]);
       }
 
       result.push(currentWeek);
@@ -102,7 +102,7 @@ export const TimelineHeatmap = ({
   // Find months for labels - placed at the beginning of each month
   const months = useMemo(() => {
     const result: { month: string; week: number; day: number }[] = [];
-    let currentMonth = '';
+    let currentMonth = "";
 
     weeks.forEach((week, weekIndex) => {
       week.forEach((day, dayIndex) => {
@@ -113,7 +113,7 @@ export const TimelineHeatmap = ({
         if (month !== currentMonth && date.getDate() === 1) {
           currentMonth = month;
           result.push({
-            month: date.toLocaleDateString('en-US', { month: 'short' }),
+            month: date.toLocaleDateString("en-US", { month: "short" }),
             week: weekIndex,
             day: dayIndex,
           });
@@ -126,7 +126,7 @@ export const TimelineHeatmap = ({
 
   // Calculate color intensity based on task count
   const getColorIntensity = (date: string) => {
-    if (!date) return 'transparent';
+    if (!date) return "transparent";
 
     const taskCount = data[date]?.length || 0;
     if (taskCount === 0) return theme.palette.action.disabledBackground;
@@ -145,11 +145,11 @@ export const TimelineHeatmap = ({
   // Format date for tooltip in a more human-readable format
   const formatDateForTooltip = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -244,19 +244,19 @@ export const TimelineHeatmap = ({
   }, [isInitialRender, months, weeks]);
 
   return (
-    <Box sx={{ overflowX: 'auto', pb: 2 }}>
+    <Box sx={{ overflowX: "auto", pb: 2 }}>
       {/* Month labels */}
-      <Box sx={{ position: 'relative', height: 20, mb: 1, ml: 3 }}>
+      <Box sx={{ position: "relative", height: 20, mb: 1, ml: 3 }}>
         {monthLabelPositions.map(({ month, position }, index) => (
           <Typography
             key={`${month}-${index}`}
             variant="caption"
             sx={{
-              position: 'absolute',
+              position: "absolute",
               left: position,
               top: 0,
-              transform: 'translateX(-50%)', // Center the label over the day
-              textAlign: 'center',
+              transform: "translateX(-50%)", // Center the label over the day
+              textAlign: "center",
             }}
           >
             {month}
@@ -265,33 +265,33 @@ export const TimelineHeatmap = ({
       </Box>
 
       {/* Day labels and heatmap grid */}
-      <Box ref={containerRef} sx={{ display: 'flex' }}>
+      <Box ref={containerRef} sx={{ display: "flex" }}>
         {/* Day of week labels */}
         <Box
           sx={{
             width: 20,
             mr: 0.5,
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
             height: 77, // Initial height, will be adjusted based on actual grid
           }}
         >
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+          {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
             <Typography
               key={day + index}
               variant="caption"
               sx={{
-                position: 'absolute',
+                position: "absolute",
                 top: dayLabelPositions[index]?.position || index * 11,
                 height: dayLabelPositions[index]?.height || 11,
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '9px',
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "9px",
                 lineHeight: 1,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
               {day}
@@ -304,8 +304,8 @@ export const TimelineHeatmap = ({
           <Box
             key={`week-${weekIndex}`}
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
+              display: "flex",
+              flexDirection: "column",
               mr: 0.1,
             }}
           >
@@ -339,15 +339,15 @@ export const TimelineHeatmap = ({
                     mb: 0.5,
                     ml: 0.5,
                     borderRadius: 0.5,
-                    cursor: 'pointer',
+                    cursor: "pointer",
                     backgroundColor: getColorIntensity(day),
-                    border: day === selectedDate ? '1px solid' : 'none',
+                    border: day === selectedDate ? "1px solid" : "none",
                     borderColor:
                       day === selectedDate
                         ? theme.palette.primary.main
-                        : 'transparent',
-                    '&:hover': {
-                      outline: '1px solid',
+                        : "transparent",
+                    "&:hover": {
+                      outline: "1px solid",
                       outlineColor: theme.palette.primary.main,
                     },
                   }}
@@ -360,7 +360,7 @@ export const TimelineHeatmap = ({
       </Box>
 
       {/* Legend */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, ml: 4, gap: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mt: 2, ml: 4, gap: 1 }}>
         <Typography variant="caption">Less</Typography>
         {[0.2, 0.4, 0.6, 0.8, 0.9].map((intensity) => (
           <Box

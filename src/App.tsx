@@ -4,7 +4,6 @@ import { Box, Toolbar } from "@mui/material";
 import { Navbar } from "@/widgets";
 import { View } from "@/shared";
 import { AllTasksView, CompletedTasksView, DailyPlanView, Timeline } from "@/features";
-import { HabitStreaksView } from "@/features/habits";
 import { StorageProvider } from "@/app/";
 import { useWorkTasksPreference } from "@/features/tasks/model";
 import { AppContainer } from "./styles";
@@ -36,7 +35,6 @@ function App() {
           {currentView === "daily-plan" && <DailyPlanView hideWorkTasks={hideWorkTasks} />}
           {currentView === "completed" && <CompletedTasksView hideWorkTasks={hideWorkTasks} />}
           {currentView === "timeline" && <Timeline hideWorkTasks={hideWorkTasks} />}
-          {currentView === "habit-streaks" && <HabitStreaksView hideWorkTasks={hideWorkTasks} />}
         </AppContainer>
       </Box>
     </StorageProvider>
