@@ -3,6 +3,7 @@ import { Task } from "@/entities/task";
 
 export interface TaskStorage {
   archiveTask(taskId: string): Promise<void>;
+  archiveHabitTask(taskId: string): Promise<void>;
   getTasks(): Promise<Task[]>;
   saveTasks(tasks: Task[]): Promise<void>;
   updateTaskRanks(taskIds: string[], ranks: string[]): Promise<void>;

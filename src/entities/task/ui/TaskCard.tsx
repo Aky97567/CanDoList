@@ -1,5 +1,5 @@
 // src/entities/task/ui/TaskCard.tsx
-import { CardContent, Typography, IconButton, Box } from "@mui/material";
+import { CardContent, Typography, IconButton, Box, Tooltip } from "@mui/material";
 import {
   Check,
   Delete,
@@ -7,9 +7,12 @@ import {
   PriorityHigh,
   Today,
   Undo,
+  LocalFireDepartment,
+  Timer,
 } from "@mui/icons-material";
 import { TaskCardContainer } from "./styles";
 import { Task, getCategoryColor } from "../model";
+import { isStreakAtRisk } from "@/features/habits";
 
 interface TaskCardProps {
   task: Task;
@@ -32,12 +35,24 @@ export const TaskCard = ({
 }: TaskCardProps) => {
   const { title, category, priority, isCompleted, addedToDaily } = task;
   const showRemoveFromDaily = addedToDaily && category !== "chore";
+  
+  // Check if this is a habit task with a streak
+  const isHabit = category === "chore";
+  const hasStreak = isHabit && ((task.currentStreak || 0) > 0);
+  const atRisk = isHabit && isStreakAtRisk(task.lastCompletedDate);
+
+  // Get border color - add highlight for at-risk streaks
+  const categoryColor = getCategoryColor(category);
 
   return (
     <TaskCardContainer
       completed={isCompleted}
       category={category}
-      categoryColor={getCategoryColor(category)}
+      categoryColor={categoryColor}
+      // Add custom style for at-risk streaks
+      sx={atRisk && !isCompleted ? { 
+        boxShadow: '0 0 0 2px rgba(211, 47, 47, 0.5)',
+      } : {}}
     >
       <CardContent
         sx={{
@@ -48,30 +63,50 @@ export const TaskCard = ({
           "&:last-child": { pb: "12px !important" },
         }}
       >
-        <Typography
-          variant="h6"
-          component="div"
-          sx={{
-            fontSize: "1rem",
-            fontWeight: 500,
-            flex: 1,
-            mr: 1,
-          }}
-        >
-          {title}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", flex: 1, mr: 1 }}>
+          {/* Show streak indicator for habits with streaks */}
+          {isHabit && hasStreak && (
+            <Tooltip title={`${task.currentStreak} day streak${atRisk ? ' - at risk!' : ''}`}>
+              <Box sx={{ mr: 1, display: "flex", alignItems: "center" }}>
+                {atRisk ? (
+                  <Timer fontSize="small" color="error" />
+                ) : (
+                  <LocalFireDepartment 
+                    fontSize="small" 
+                    sx={{ 
+                      color: (task.currentStreak || 0) >= 7 ? '#E91E63' : '#FFA500' 
+                    }} 
+                  />
+                )}
+              </Box>
+            </Tooltip>
+          )}
+          
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{
+              fontSize: "1rem",
+              fontWeight: 500,
+              flex: 1,
+            }}
+          >
+            {title}
+          </Typography>
+        </Box>
+        
         <Box
           sx={{
             display: "flex",
             flexWrap: { xs: "wrap", sm: "nowrap" },
             gap: 0.25,
-            width: { xs: "66px", sm: "auto" }, // Reduced from 88px to 66px for smaller buttons
+            width: { xs: "66px", sm: "auto" },
             justifyContent: "flex-end",
             "& .MuiIconButton-root": {
-              width: { xs: "30px", sm: "40px" }, // Smaller buttons on mobile
+              width: { xs: "30px", sm: "40px" },
               height: { xs: "30px", sm: "40px" },
               "& .MuiSvgIcon-root": {
-                fontSize: { xs: "1rem", sm: "1.25rem" }, // Smaller icons on mobile
+                fontSize: { xs: "1rem", sm: "1.25rem" },
               },
             },
           }}
