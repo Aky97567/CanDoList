@@ -3,7 +3,6 @@ import { View } from '@/shared';
 import { NavButton } from './styles';
 import { ElementType } from 'react';
 import TimelineIcon from '@mui/icons-material/Timeline';
-import RepeatIcon from '@mui/icons-material/Repeat';
 
 interface NavbarActionsProps {
   currentView: View;
@@ -48,14 +47,6 @@ export const NavbarActions = ({
       >
         <TimelineIcon sx={{ mr: 0.5, fontSize: '1rem' }} />
         Timeline
-      </Component>
-      <Component
-        onClick={() => onViewChange('habit-streaks')}
-        className={currentView === 'habit-streaks' ? 'active' : ''}
-        sx={sx}
-      >
-        <RepeatIcon sx={{ mr: 0.5, fontSize: '1rem' }} />
-        Habits
       </Component>
     </>
   );

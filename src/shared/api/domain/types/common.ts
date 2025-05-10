@@ -1,2 +1,2 @@
 // src/shared/api/domain/types/common.ts
-export type View = "all-tasks" | "daily-plan" | "completed" | "timeline" | "habit-streaks";
+export type View = "all-tasks" | "daily-plan" | "completed" | "timeline";
