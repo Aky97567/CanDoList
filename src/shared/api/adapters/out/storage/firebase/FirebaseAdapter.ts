@@ -117,14 +117,15 @@ export class FirebaseAdapter implements TaskStorage {
     }
   }
 
-  async archiveTask(taskId: string): Promise<void> {
+  // Private method with common archiving logic
+  private async _archiveTaskBase(taskId: string, deleteOriginal: boolean): Promise<void> {
     try {
-      console.log("FirebaseAdapter: Archiving task with ID:", taskId);
+      console.log(`FirebaseAdapter: Archiving task ${taskId} ${deleteOriginal ? "and deleting original" : "without deletion"}`);
       const batch = writeBatch(db);
       const collectionPath = this.getCollectionPath();
       const taskDocRef = doc(db, collectionPath, taskId);
 
-      // First, get the task data
+      // Get the task data
       const taskSnapshot = await getDoc(taskDocRef);
 
       if (!taskSnapshot.exists()) {
@@ -143,20 +144,30 @@ export class FirebaseAdapter implements TaskStorage {
       // Store in archive collection
       const archiveCollectionPath = this.getArchiveCollectionPath();
       const archiveDocRef = doc(db, archiveCollectionPath, taskId);
-
-      // Add the task to the archive with its data including completion date
       batch.set(archiveDocRef, archivedTaskData);
 
-      // Delete the original task
-      batch.delete(taskDocRef);
+      // Delete or update the original task based on the parameter
+      if (deleteOriginal) {
+        batch.delete(taskDocRef);
+      } else {
+        batch.update(taskDocRef, { isCompleted: true });
+      }
 
       console.log("FirebaseAdapter: Committing batch...");
       await batch.commit();
-      console.log("FirebaseAdapter: Task archived successfully");
+      console.log(`FirebaseAdapter: Task archived ${deleteOriginal ? "and deleted" : "without deletion"} successfully`);
     } catch (error) {
-      console.error("Error archiving task in Firebase:", error);
+      console.error(`Error archiving task in Firebase:`, error);
       throw error;
     }
+  }
+
+  async archiveTask(taskId: string): Promise<void> {
+    return this._archiveTaskBase(taskId, true);
+  }
+
+  async archiveHabitTask(taskId: string): Promise<void> {
+    return this._archiveTaskBase(taskId, false);
   }
 
   async getArchivedTasks(): Promise<Record<string, Task[]>> {
