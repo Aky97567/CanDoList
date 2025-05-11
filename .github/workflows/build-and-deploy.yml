@@ -77,6 +77,8 @@ jobs:
         run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      - name: Create CNAME file
+        run: echo "candolist.akshayc.dev" > ./dist/CNAME
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
