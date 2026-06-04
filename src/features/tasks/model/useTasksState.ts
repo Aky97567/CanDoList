@@ -106,9 +106,21 @@ export const useTasksState = () => {
       const lastRankValue = lastItemRank ? parseInt(lastItemRank) : 1000;
       newRank = (lastRankValue + 1000).toString().padStart(6, '0');
     } else {
-      // Moving to a middle position - generate rank between the two adjacent items
-      const beforeRank = dailyTasks[newIndex - 1]?.rank;
-      const afterRank = dailyTasks[newIndex]?.rank;
+      // Moving to a middle position - generate rank between the two adjacent items.
+      // The neighbors differ depending on direction because dailyTasks is the original
+      // (pre-move) array: moving down means the moved item is still sitting at oldIndex,
+      // so newIndex-1 would point at the moved item itself rather than a true neighbor.
+      let beforeRank: string | undefined;
+      let afterRank: string | undefined;
+      if (newIndex > oldIndex) {
+        // Moving down: true neighbors in the original array are at newIndex and newIndex+1
+        beforeRank = dailyTasks[newIndex]?.rank;
+        afterRank = dailyTasks[newIndex + 1]?.rank;
+      } else {
+        // Moving up: true neighbors in the original array are at newIndex-1 and newIndex
+        beforeRank = dailyTasks[newIndex - 1]?.rank;
+        afterRank = dailyTasks[newIndex]?.rank;
+      }
       const beforeValue = beforeRank ? parseInt(beforeRank) : 0;
       const afterValue = afterRank ? parseInt(afterRank) : beforeValue + 2000;
       newRank = Math.floor((beforeValue + afterValue) / 2)
