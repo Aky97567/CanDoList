@@ -186,6 +186,21 @@ export const useTasksState = () => {
     await saveTasks(newTasks);
   };
 
+  const unskipHabit = async (taskId: string) => {
+    const newTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, skippedDate: undefined } : task
+    );
+    await saveTasks(newTasks);
+  };
+
+  const skipHabitForToday = async (taskId: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    const newTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, skippedDate: today } : task
+    );
+    await saveTasks(newTasks);
+  };
+
   const toggleDailyTask = async (taskId: string) => {
     const newTasks = tasks.map((task) =>
       task.id === taskId ? { ...task, addedToDaily: !task.addedToDaily } : task
@@ -221,5 +236,7 @@ export const useTasksState = () => {
     toggleTaskCompletion,
     toggleTaskPriority,
     toggleDailyTask,
+    skipHabitForToday,
+    unskipHabit,
   };
 };

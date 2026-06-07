@@ -1,5 +1,5 @@
 // src/entities/task/ui/TaskCard.tsx
-import { CardContent, Typography, IconButton, Box, Tooltip } from "@mui/material";
+import { CardContent, Chip, IconButton, Box, Tooltip, Typography } from "@mui/material";
 import {
   Check,
   Delete,
@@ -9,6 +9,7 @@ import {
   Undo,
   LocalFireDepartment,
   Timer,
+  Block,
 } from "@mui/icons-material";
 import { TaskCardContainer } from "./styles";
 import { Task, getCategoryColor } from "../model";
@@ -22,6 +23,8 @@ interface TaskCardProps {
   onRemoveFromDaily?: () => void;
   onTogglePriority?: () => void;
   onToggleDaily?: () => void;
+  onSkipToday?: () => void;
+  onUnskip?: () => void;
 }
 
 export const TaskCard = ({
@@ -32,14 +35,17 @@ export const TaskCard = ({
   onRemoveFromDaily,
   onTogglePriority,
   onToggleDaily,
+  onSkipToday,
+  onUnskip,
 }: TaskCardProps) => {
   const { title, category, priority, isCompleted, addedToDaily } = task;
   const showRemoveFromDaily = addedToDaily && category !== "chore";
-  
-  // Check if this is a habit task with a streak
+
   const isHabit = category === "chore";
   const hasStreak = isHabit && ((task.currentStreak || 0) > 0);
   const atRisk = isHabit && isStreakAtRisk(task.lastCompletedDate);
+  const today = new Date().toISOString().split('T')[0];
+  const isSkippedToday = isHabit && task.skippedDate === today;
 
   // Get border color - add highlight for at-risk streaks
   const categoryColor = getCategoryColor(category);
@@ -49,8 +55,7 @@ export const TaskCard = ({
       completed={isCompleted}
       category={category}
       categoryColor={categoryColor}
-      // Add custom style for at-risk streaks
-      sx={atRisk && !isCompleted ? { 
+      sx={atRisk && !isCompleted ? {
         boxShadow: '0 0 0 2px rgba(211, 47, 47, 0.5)',
       } : {}}
     >
@@ -111,63 +116,74 @@ export const TaskCard = ({
             },
           }}
         >
-          {onEdit && !isCompleted && (
-            <IconButton size="small" onClick={() => onEdit(task)}>
-              <Edit fontSize="small" />
-            </IconButton>
-          )}
-          {onTogglePriority && !isCompleted && (
-            <IconButton
-              size="small"
-              onClick={onTogglePriority}
-              color={priority === "high" ? "error" : "default"}
-            >
-              <PriorityHigh />
-            </IconButton>
-          )}
-          {onToggleDaily && category !== "chore" && !isCompleted && (
-            <IconButton
-              size="small"
-              onClick={onToggleDaily}
-              color={addedToDaily ? "info" : "default"}
-            >
-              <Today />
-            </IconButton>
-          )}
-          {showRemoveFromDaily && onRemoveFromDaily && !isCompleted && (
-            <IconButton size="small" onClick={onRemoveFromDaily} color="error">
-              <Today />
-            </IconButton>
-          )}
-          {category === "chore" && (
-            <IconButton
-              size="small"
-              color="error"
-              sx={{
-                pointerEvents: "none",
-              }}
-            >
-              <Today />
-            </IconButton>
-          )}
-          {isCompleted && onComplete && (
-            <IconButton size="small" onClick={onComplete} color="primary">
-              <Undo />
-            </IconButton>
-          )}
-          {isCompleted && task.category !== "chore" && (
-            <IconButton
-              size="small"
-              onClick={() => onDelete && onDelete()}
-              color="error"
-            >
-              <Delete />
-            </IconButton>
-          )}
-          {!isCompleted && onComplete && (
-            <IconButton size="small" onClick={onComplete}>
-              <Check />
-            </IconButton>
+          {isSkippedToday ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Chip label="Skipped" size="small" color="error" />
+              {onUnskip && (
+                <Tooltip title="Bring back to today">
+                  <IconButton size="small" onClick={onUnskip} color="primary">
+                    <Undo />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          ) : (
+            <>
+              {onEdit && !isCompleted && (
+                <IconButton size="small" onClick={() => onEdit(task)}>
+                  <Edit fontSize="small" />
+                </IconButton>
+              )}
+              {onTogglePriority && !isCompleted && (
+                <IconButton
+                  size="small"
+                  onClick={onTogglePriority}
+                  color={priority === "high" ? "error" : "default"}
+                >
+                  <PriorityHigh />
+                </IconButton>
+              )}
+              {onToggleDaily && category !== "chore" && !isCompleted && (
+                <IconButton
+                  size="small"
+                  onClick={onToggleDaily}
+                  color={addedToDaily ? "info" : "default"}
+                >
+                  <Today />
+                </IconButton>
+              )}
+              {showRemoveFromDaily && onRemoveFromDaily && !isCompleted && (
+                <IconButton size="small" onClick={onRemoveFromDaily} color="error">
+                  <Today />
+                </IconButton>
+              )}
+              {category === "chore" && onSkipToday && !isCompleted && (
+                <Tooltip title="Won't do today">
+                  <IconButton size="small" onClick={onSkipToday} color="default">
+                    <Block fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {isCompleted && onComplete && (
+                <IconButton size="small" onClick={onComplete} color="primary">
+                  <Undo />
+                </IconButton>
+              )}
+              {isCompleted && task.category !== "chore" && (
+                <IconButton
+                  size="small"
+                  onClick={() => onDelete && onDelete()}
+                  color="error"
+                >
+                  <Delete />
+                </IconButton>
+              )}
+              {!isCompleted && onComplete && (
+                <IconButton size="small" onClick={onComplete}>
+                  <Check />
+                </IconButton>
+              )}
+            </>
           )}
         </Box>
       </CardContent>

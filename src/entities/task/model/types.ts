@@ -16,6 +16,7 @@ export interface Task {
   longestStreak?: number;
   lastCompletedDate?: string;
   streakUpdatedAt?: number; // timestamp when streak was last calculated
+  skippedDate?: string; // YYYY-MM-DD date the habit was skipped ("won't do today")
 }
 
 export const getCategoryColor = (category: TaskCategory) => {

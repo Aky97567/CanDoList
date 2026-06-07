@@ -21,6 +21,7 @@ export const DailyPlanView = ({
     toggleDailyTask,
     reorderTasks,
     updateTask,
+    skipHabitForToday,
   } = useTasksState();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -32,16 +33,18 @@ export const DailyPlanView = ({
     }
   };
 
+  const today = new Date().toISOString().split('T')[0];
+
   // Filter for daily tasks and sort by rank (ascending order)
   // With numeric ranks stored as strings, smaller numbers appear at the top
   const dailyTasks = tasks
-    .filter(
-      (task) =>
-        !task.isCompleted &&
-        (task.addedToDaily || task.category === "chore") &&
-        // Filter out work tasks if hideWorkTasks is true
-        !(hideWorkTasks && task.category === "work")
-    )
+    .filter((task) => {
+      if (hideWorkTasks && task.category === 'work') return false;
+      if (task.category === 'chore') {
+        return !task.isCompleted && task.skippedDate !== today;
+      }
+      return !task.isCompleted && task.addedToDaily;
+    })
     .sort((a, b) => {
       // Handle missing ranks
       if (!a.rank) return 1;
@@ -79,6 +82,7 @@ export const DailyPlanView = ({
             onComplete={toggleTaskCompletion}
             onTogglePriority={toggleTaskPriority}
             onRemoveFromDaily={toggleDailyTask}
+            onSkipToday={skipHabitForToday}
           />
         </Box>
       )}

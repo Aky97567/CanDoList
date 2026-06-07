@@ -19,6 +19,7 @@ interface TasksGridViewProps {
   onEdit?: (task: Task) => void;
   onTogglePriority?: (taskId: string) => void;
   onToggleDaily?: (taskId: string) => void;
+  onUnskip?: (taskId: string) => void;
   fabAction?: () => void;
 }
 
@@ -33,6 +34,7 @@ export const TasksGridView = ({
   onEdit,
   onTogglePriority,
   onToggleDaily,
+  onUnskip,
   fabAction,
 }: TasksGridViewProps) => {
   const filteredTasks = tasks.filter(taskFilter);
@@ -110,6 +112,7 @@ export const TasksGridView = ({
                     onToggleDaily={
                       onToggleDaily ? () => onToggleDaily(task.id) : undefined
                     }
+                    onUnskip={onUnskip ? () => onUnskip(task.id) : undefined}
                   />
                 ))}
               </Paper>

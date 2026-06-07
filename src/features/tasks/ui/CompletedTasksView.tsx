@@ -11,7 +11,7 @@ interface CompletedTasksViewProps {
 export const CompletedTasksView = ({
   hideWorkTasks = false,
 }: CompletedTasksViewProps) => {
-  const { deleteTask, tasks, toggleTaskCompletion, updateTask } =
+  const { deleteTask, tasks, toggleTaskCompletion, updateTask, unskipHabit } =
     useTasksState();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const categories: TaskCategory[] = ["work", "personal", "green", "chore"];
@@ -23,8 +23,12 @@ export const CompletedTasksView = ({
     }
   };
 
+  const today = new Date().toISOString().split('T')[0];
+
   const taskFilter = (task: Task) => {
-    return task.isCompleted && !(hideWorkTasks && task.category === "work");
+    if (hideWorkTasks && task.category === "work") return false;
+    const isSkippedToday = task.category === "chore" && task.skippedDate === today;
+    return task.isCompleted || isSkippedToday;
   };
 
   return (
@@ -37,6 +41,7 @@ export const CompletedTasksView = ({
         onComplete={toggleTaskCompletion}
         onDelete={deleteTask}
         onEdit={setEditingTask}
+        onUnskip={unskipHabit}
         emptyStateMessage="No completed tasks yet"
       />
 

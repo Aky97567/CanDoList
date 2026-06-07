@@ -25,6 +25,7 @@ interface SortableTaskCardProps {
   onEdit?: (task: Task) => void;
   onTogglePriority?: () => void;
   onRemoveFromDaily?: () => void;
+  onSkipToday?: () => void;
 }
 
 const SortableTaskCard = ({ task, ...props }: SortableTaskCardProps) => {
@@ -66,6 +67,7 @@ interface DraggableTaskListProps {
   onComplete: (taskId: string) => void;
   onTogglePriority: (taskId: string) => void;
   onRemoveFromDaily: (taskId: string) => void;
+  onSkipToday?: (taskId: string) => void;
 }
 
 export const DraggableTaskList = ({
@@ -75,6 +77,7 @@ export const DraggableTaskList = ({
   onComplete,
   onTogglePriority,
   onRemoveFromDaily,
+  onSkipToday,
 }: DraggableTaskListProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -113,6 +116,7 @@ export const DraggableTaskList = ({
             onComplete={() => onComplete(task.id)}
             onTogglePriority={() => onTogglePriority(task.id)}
             onRemoveFromDaily={() => onRemoveFromDaily(task.id)}
+            onSkipToday={onSkipToday ? () => onSkipToday(task.id) : undefined}
           />
         ))}
       </SortableContext>
