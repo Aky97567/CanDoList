@@ -61,11 +61,12 @@ export const TaskCard = ({
     >
       <CardContent
         sx={{
-          p: "12px !important",
+          p: "8px !important",
+          pr: "4px !important",
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "space-between",
-          "&:last-child": { pb: "12px !important" },
+          "&:last-child": { pb: "8px !important", pr: "4px !important" },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", flex: 1, mr: 1 }}>
@@ -104,14 +105,15 @@ export const TaskCard = ({
           sx={{
             display: "flex",
             flexWrap: { xs: "wrap", sm: "nowrap" },
-            gap: 0.25,
+            gap: 0,
             width: { xs: "66px", sm: "auto" },
             justifyContent: "flex-end",
             "& .MuiIconButton-root": {
-              width: { xs: "30px", sm: "40px" },
-              height: { xs: "30px", sm: "40px" },
+              width: { xs: "30px", sm: "32px" },
+              height: { xs: "30px", sm: "32px" },
+              padding: "4px",
               "& .MuiSvgIcon-root": {
-                fontSize: { xs: "1rem", sm: "1.25rem" },
+                fontSize: { xs: "1rem", sm: "1.1rem" },
               },
             },
           }}
