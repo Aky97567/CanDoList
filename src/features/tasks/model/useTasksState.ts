@@ -8,7 +8,7 @@ import {
   generateRankAfter,
 } from '@/entities';
 import { useStorage } from '@/app/';
-import { updateHabitStreak, refreshAllHabitStreaks } from '@/features/habits';
+import { updateHabitStreak, refreshAllHabitStreaks, recalculateStreakFromHistory } from '@/features/habits';
 
 export const useTasksState = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -181,6 +181,36 @@ export const useTasksState = () => {
     await saveTasks(newTasks);
   };
 
+  const toggleRetroactiveCompletion = async (taskId: string, date: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    const startDate = oneYearAgo.toISOString().split('T')[0];
+
+    const completions = await storage.getHabitCompletions(taskId, startDate, today);
+    const isCompleted = completions.includes(date);
+
+    if (isCompleted) {
+      await storage.removeHabitCompletion(taskId, date);
+    } else {
+      await storage.addHabitCompletion(taskId, date);
+    }
+
+    const updated = isCompleted
+      ? completions.filter((d) => d !== date)
+      : [...completions, date].sort();
+
+    const { currentStreak, longestStreak, lastCompletedDate } =
+      recalculateStreakFromHistory(updated);
+
+    const newTasks = tasks.map((task) =>
+      task.id === taskId
+        ? { ...task, currentStreak, longestStreak, lastCompletedDate }
+        : task
+    );
+    await saveTasks(newTasks);
+  };
+
   const toggleDailyTask = async (taskId: string) => {
     const newTasks = tasks.map((task) =>
       task.id === taskId ? { ...task, addedToDaily: !task.addedToDaily } : task
@@ -218,5 +248,6 @@ export const useTasksState = () => {
     toggleDailyTask,
     skipHabitForToday,
     unskipHabit,
+    toggleRetroactiveCompletion,
   };
 };

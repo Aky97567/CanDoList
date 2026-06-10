@@ -13,4 +13,8 @@ export interface TaskStorage {
     startDate: string,
     endDate: string
   ): Promise<Task[]>;
+  addHabitCompletion(taskId: string, date: string): Promise<void>;
+  removeHabitCompletion(taskId: string, date: string): Promise<void>;
+  getHabitCompletions(taskId: string, startDate: string, endDate: string): Promise<string[]>;
+  getHabitCompletionsInRange(startDate: string, endDate: string): Promise<{ taskId: string; date: string }[]>;
 }

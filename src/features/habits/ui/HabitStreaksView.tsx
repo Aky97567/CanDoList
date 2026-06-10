@@ -15,7 +15,7 @@ import { useTasksState } from '@/features/tasks/model';
 import { HabitTimelineView } from './HabitTimelineView';
 
 export const HabitStreaksView = () => {
-  const { tasks } = useTasksState();
+  const { tasks, toggleRetroactiveCompletion } = useTasksState();
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedHabit, setSelectedHabit] = useState<Task | null>(null);
 
@@ -40,7 +40,15 @@ export const HabitStreaksView = () => {
   };
 
   return (
-    <Box sx={{ pb: 4, maxWidth: '800px', mx: 'auto' }}>
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: '100dvh',
+        pb: 8,
+        width: 'calc(100svw - 28px)',
+        marginInline: 'auto',
+      }}
+    >
       <Typography variant="h4" component="h1" gutterBottom>
         Habit Streaks
       </Typography>
@@ -83,7 +91,10 @@ export const HabitStreaksView = () => {
             </>
           )}
           {selectedTab === 1 && selectedHabit && (
-            <HabitTimelineView habit={selectedHabit} />
+            <HabitTimelineView
+              habit={selectedHabit}
+              onToggleCompletion={toggleRetroactiveCompletion}
+            />
           )}
         </Box>
       </Paper>

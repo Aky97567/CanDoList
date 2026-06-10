@@ -136,6 +136,52 @@ export const updateHabitStreak = (
 };
 
 /**
+ * Recalculates streak data from a full sorted completion history.
+ * Use this whenever history is modified (retroactive add/remove).
+ * @param sortedDates Ascending YYYY-MM-DD date strings
+ */
+export const recalculateStreakFromHistory = (
+  sortedDates: string[]
+): { currentStreak: number; longestStreak: number; lastCompletedDate: string | undefined } => {
+  if (sortedDates.length === 0) {
+    return { currentStreak: 0, longestStreak: 0, lastCompletedDate: undefined };
+  }
+
+  // Calculate longest streak by walking forward
+  let longestStreak = 1;
+  let runLength = 1;
+  for (let i = 1; i < sortedDates.length; i++) {
+    if (areConsecutiveDays(sortedDates[i - 1], sortedDates[i])) {
+      runLength++;
+      longestStreak = Math.max(longestStreak, runLength);
+    } else {
+      runLength = 1;
+    }
+  }
+
+  // Calculate current streak by walking backward from the most recent date
+  const lastCompleted = sortedDates[sortedDates.length - 1];
+  const today = getCurrentDateString();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  let currentStreak = 0;
+  if (lastCompleted === today || lastCompleted === yesterdayStr) {
+    currentStreak = 1;
+    for (let i = sortedDates.length - 1; i > 0; i--) {
+      if (areConsecutiveDays(sortedDates[i - 1], sortedDates[i])) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return { currentStreak, longestStreak, lastCompletedDate: lastCompleted };
+};
+
+/**
  * Updates streak statuses for all habits
  * This should be called when loading habits to check for broken streaks
  * @param tasks List of all tasks

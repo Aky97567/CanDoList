@@ -1,6 +1,7 @@
 // src/shared/api/adapters/out/storage/firebase/FirebaseAdapter.ts
 import {
   collection,
+  collectionGroup,
   getDocs,
   writeBatch,
   doc,
@@ -8,6 +9,8 @@ import {
   orderBy,
   where,
   getDoc,
+  setDoc,
+  deleteDoc,
   Timestamp,
 } from "firebase/firestore";
 import { Task } from "@/entities";
@@ -21,6 +24,10 @@ export class FirebaseAdapter implements TaskStorage {
 
   private getArchiveCollectionPath() {
     return `users/${CURRENT_USER_ID}/archive`;
+  }
+
+  private getCompletionsPath(taskId: string) {
+    return `users/${CURRENT_USER_ID}/tasks/${taskId}/completions`;
   }
 
   async getTasks(): Promise<Task[]> {
@@ -167,7 +174,44 @@ export class FirebaseAdapter implements TaskStorage {
   }
 
   async archiveHabitTask(taskId: string): Promise<void> {
-    return this._archiveTaskBase(taskId, false);
+    await this._archiveTaskBase(taskId, false);
+    const today = new Date().toISOString().split('T')[0];
+    await this.addHabitCompletion(taskId, today);
+  }
+
+  async addHabitCompletion(taskId: string, date: string): Promise<void> {
+    const docRef = doc(db, this.getCompletionsPath(taskId), date);
+    await setDoc(docRef, { date, completedAt: Timestamp.now() });
+  }
+
+  async removeHabitCompletion(taskId: string, date: string): Promise<void> {
+    const docRef = doc(db, this.getCompletionsPath(taskId), date);
+    await deleteDoc(docRef);
+  }
+
+  async getHabitCompletionsInRange(startDate: string, endDate: string): Promise<{ taskId: string; date: string }[]> {
+    const q = query(
+      collectionGroup(db, 'completions'),
+      orderBy('date', 'asc'),
+      where('date', '>=', startDate),
+      where('date', '<=', endDate)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      taskId: doc.ref.parent.parent!.id,
+      date: doc.data().date as string,
+    }));
+  }
+
+  async getHabitCompletions(taskId: string, startDate: string, endDate: string): Promise<string[]> {
+    const q = query(
+      collection(db, this.getCompletionsPath(taskId)),
+      orderBy('date', 'asc'),
+      where('date', '>=', startDate),
+      where('date', '<=', endDate)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => doc.data().date as string);
   }
 
   async getArchivedTasks(): Promise<Record<string, Task[]>> {

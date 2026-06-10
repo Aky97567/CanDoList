@@ -11,92 +11,70 @@ import {
 import { Task } from '@/entities';
 import { useStorage } from '@/app/';
 import { TimelineHeatmap } from '@/features/timeline/ui/TimelineHeatmap';
+import { TimelineData } from '@/features/timeline/model';
 import { LocalFireDepartment, Whatshot } from '@mui/icons-material';
 
 interface HabitTimelineViewProps {
   habit: Task;
+  onToggleCompletion: (taskId: string, date: string) => Promise<void>;
 }
 
-export const HabitTimelineView = ({ habit }: HabitTimelineViewProps) => {
+export const HabitTimelineView = ({
+  habit,
+  onToggleCompletion,
+}: HabitTimelineViewProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [timelineData, setTimelineData] = useState<Record<string, Task[]>>({});
+  const [completionDates, setCompletionDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState({
-    startDate: '',
-    endDate: '',
-  });
-
-  const storage = useStorage();
-
-  // Get dates for one year back
-  const getYearDateRange = () => {
+  const [dateRange] = useState(() => {
     const today = new Date();
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(today.getFullYear() - 1);
-
     return {
       startDate: oneYearAgo.toISOString().split('T')[0],
       endDate: today.toISOString().split('T')[0],
     };
-  };
+  });
 
-  // Load archived task data for this habit
-  const loadHabitCompletions = async () => {
+  const storage = useStorage();
+
+  const loadCompletions = async (showSpinner = true) => {
     try {
-      setIsLoading(true);
+      if (showSpinner) setIsLoading(true);
       setError(null);
-
-      // Get date range
-      const range = getYearDateRange();
-      setDateRange(range);
-
-      // Fetch archived tasks for date range
-      const archivedTasks = await storage.getArchivedTasksForDateRange(
-        range.startDate,
-        range.endDate
+      const dates = await storage.getHabitCompletions(
+        habit.id,
+        dateRange.startDate,
+        dateRange.endDate,
       );
-
-      // Filter for just this habit and create timeline data
-      const habitData: Record<string, Task[]> = {};
-
-      archivedTasks.forEach((task) => {
-        if (task.id === habit.id) {
-          const completedDate = (task as any).completedDate.split('T')[0];
-
-          if (!habitData[completedDate]) {
-            habitData[completedDate] = [];
-          }
-
-          habitData[completedDate].push(task);
-        }
-      });
-
-      setTimelineData(habitData);
-    } catch (error) {
-      console.error('Error loading habit timeline data:', error);
+      setCompletionDates(dates);
+    } catch (err) {
+      console.error('Error loading habit completions:', err);
       setError('Failed to load habit timeline data.');
     } finally {
-      setIsLoading(false);
+      if (showSpinner) setIsLoading(false);
     }
   };
 
-  // Handle date selection
-  const handleDateClick = (date: string) => {
-    setSelectedDate(date);
-  };
-
-  // Load data on component mount
   useEffect(() => {
-    loadHabitCompletions();
+    loadCompletions();
   }, [habit.id]);
 
-  // Calculate streak data
-  const totalCompletions = Object.values(timelineData).reduce(
-    (sum, tasks) => sum + tasks.length,
-    0
-  );
-  const daysTracked = Object.keys(timelineData).length;
+  const handleDateClick = async (date: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    if (date > today) return; // no future dates
+
+    setSelectedDate(date);
+    await onToggleCompletion(habit.id, date);
+    await loadCompletions(false);
+  };
+
+  // Convert string[] to TimelineData shape TimelineHeatmap expects
+  const timelineData: TimelineData = completionDates.reduce((acc, date) => {
+    acc[date] = [habit];
+    return acc;
+  }, {} as TimelineData);
 
   if (isLoading) {
     return (
@@ -136,7 +114,13 @@ export const HabitTimelineView = ({ habit }: HabitTimelineViewProps) => {
 
       <Divider sx={{ mb: 2 }} />
 
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper
+        sx={{
+          p: 2,
+          mb: 3,
+          overflowX: 'hidden',
+        }}
+      >
         <Typography variant="body1" gutterBottom>
           Completion Timeline (Last 12 Months)
         </Typography>
@@ -157,10 +141,10 @@ export const HabitTimelineView = ({ habit }: HabitTimelineViewProps) => {
 
         <Box sx={{ mt: 1 }}>
           <Typography variant="body2">
-            Total completions: <strong>{totalCompletions}</strong>
+            Total completions: <strong>{completionDates.length}</strong>
           </Typography>
           <Typography variant="body2">
-            Days tracked: <strong>{daysTracked}</strong>
+            Days tracked: <strong>{completionDates.length}</strong>
           </Typography>
           <Typography variant="body2">
             Current streak: <strong>{habit.currentStreak || 0} days</strong>
