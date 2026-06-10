@@ -35,8 +35,6 @@ export const DailyPlanView = ({
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Filter for daily tasks and sort by rank (ascending order)
-  // With numeric ranks stored as strings, smaller numbers appear at the top
   const dailyTasks = tasks
     .filter((task) => {
       if (hideWorkTasks && task.category === 'work') return false;
@@ -46,12 +44,9 @@ export const DailyPlanView = ({
       return !task.isCompleted && task.addedToDaily;
     })
     .sort((a, b) => {
-      // Handle missing ranks
       if (!a.rank) return 1;
       if (!b.rank) return -1;
-
-      // Compare as numbers, not strings
-      return parseInt(a.rank) - parseInt(b.rank);
+      return a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0;
     });
 
   return (
@@ -78,7 +73,7 @@ export const DailyPlanView = ({
           <DraggableTaskList
             tasks={dailyTasks}
             onEdit={setEditingTask}
-            onReorder={reorderTasks}
+            onReorder={(oldIndex, newIndex) => reorderTasks(dailyTasks, oldIndex, newIndex)}
             onComplete={toggleTaskCompletion}
             onTogglePriority={toggleTaskPriority}
             onRemoveFromDaily={toggleDailyTask}

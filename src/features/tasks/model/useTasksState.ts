@@ -5,6 +5,7 @@ import {
   TaskPriority,
   generateInitialRank,
   generateRankBetween,
+  generateRankAfter,
 } from '@/entities';
 import { useStorage } from '@/app/';
 import { updateHabitStreak, refreshAllHabitStreaks } from '@/features/habits';
@@ -16,10 +17,31 @@ export const useTasksState = () => {
   useEffect(() => {
     const loadTasks = async () => {
       const storedTasks = await storage.getTasks();
-      
+
       // Refresh habit streaks when loading tasks
       const refreshedTasks = refreshAllHabitStreaks(storedTasks);
-      
+
+      // One-time migration: replace old numeric ranks with fractional-indexing keys
+      const hasLegacyRanks = refreshedTasks.some(
+        (t) => t.rank !== undefined && /^\d+$/.test(t.rank)
+      );
+      if (hasLegacyRanks) {
+        const sorted = [...refreshedTasks].sort((a, b) => {
+          const aNum = parseInt(a.rank ?? '0');
+          const bNum = parseInt(b.rank ?? '0');
+          return aNum - bNum;
+        });
+        let prev: string | null = null;
+        const migrated = sorted.map((task) => {
+          const newRank = prev === null ? generateInitialRank() : generateRankAfter(prev);
+          prev = newRank;
+          return { ...task, rank: newRank };
+        });
+        await storage.saveTasks(migrated);
+        setTasks(migrated);
+        return;
+      }
+
       // If any streaks were updated, save the changes
       if (JSON.stringify(refreshedTasks) !== JSON.stringify(storedTasks)) {
         await storage.saveTasks(refreshedTasks);
@@ -77,58 +99,16 @@ export const useTasksState = () => {
     await saveTasks(newTasks);
   };
 
-  const reorderTasks = async (oldIndex: number, newIndex: number) => {
-    // Get daily tasks in the same order as they're displayed
-    const dailyTasks = tasks
-      .filter(
-        (t) => !t.isCompleted && (t.addedToDaily || t.category === 'chore')
-      )
-      .sort((a, b) => {
-        if (!a.rank) return 1;
-        if (!b.rank) return -1;
-        return parseInt(a.rank) - parseInt(b.rank);
-      });
-
+  const reorderTasks = async (dailyTasks: Task[], oldIndex: number, newIndex: number) => {
     const movedTask = dailyTasks[oldIndex];
-    let newRank;
+    const reordered = [...dailyTasks];
+    reordered.splice(oldIndex, 1);
+    reordered.splice(newIndex, 0, movedTask);
 
-    if (newIndex === 0) {
-      // Moving to the top - generate rank smaller than the first item's rank
-      // For the top position, we want a rank value SMALLER than any existing rank
-      const firstItemRank = dailyTasks[0]?.rank;
-      const firstRankValue = firstItemRank ? parseInt(firstItemRank) : 1000;
-      newRank = Math.max(1, firstRankValue - 1000)
-        .toString()
-        .padStart(6, '0');
-    } else if (newIndex >= dailyTasks.length - 1) {
-      // Moving to the bottom - generate rank larger than the last item's rank
-      const lastItemRank = dailyTasks[dailyTasks.length - 1]?.rank;
-      const lastRankValue = lastItemRank ? parseInt(lastItemRank) : 1000;
-      newRank = (lastRankValue + 1000).toString().padStart(6, '0');
-    } else {
-      // Moving to a middle position - generate rank between the two adjacent items.
-      // The neighbors differ depending on direction because dailyTasks is the original
-      // (pre-move) array: moving down means the moved item is still sitting at oldIndex,
-      // so newIndex-1 would point at the moved item itself rather than a true neighbor.
-      let beforeRank: string | undefined;
-      let afterRank: string | undefined;
-      if (newIndex > oldIndex) {
-        // Moving down: true neighbors in the original array are at newIndex and newIndex+1
-        beforeRank = dailyTasks[newIndex]?.rank;
-        afterRank = dailyTasks[newIndex + 1]?.rank;
-      } else {
-        // Moving up: true neighbors in the original array are at newIndex-1 and newIndex
-        beforeRank = dailyTasks[newIndex - 1]?.rank;
-        afterRank = dailyTasks[newIndex]?.rank;
-      }
-      const beforeValue = beforeRank ? parseInt(beforeRank) : 0;
-      const afterValue = afterRank ? parseInt(afterRank) : beforeValue + 2000;
-      newRank = Math.floor((beforeValue + afterValue) / 2)
-        .toString()
-        .padStart(6, '0');
-    }
+    const before = reordered[newIndex - 1]?.rank ?? null;
+    const after = reordered[newIndex + 1]?.rank ?? null;
+    const newRank = generateRankBetween(before, after);
 
-    // Update all tasks with the new rank
     const updatedTasks = tasks.map((task) =>
       task.id === movedTask.id ? { ...task, rank: newRank } : task
     );
