@@ -1,8 +1,9 @@
 // src/features/tasks/ui/CompletedTasksView.tsx
-import { useState } from "react";
-import { Task, TaskCategory, TaskForm } from "@/entities";
-import { useTasksState } from "../model";
-import { TasksGridView } from "./TasksGridView";
+import { useState } from 'react';
+import { Task, TaskCategory, TaskForm } from '@/entities';
+import { useTasksState } from '../model';
+import { TasksGridView } from './TasksGridView';
+import { Box } from '@mui/material';
 
 interface CompletedTasksViewProps {
   hideWorkTasks?: boolean;
@@ -14,9 +15,9 @@ export const CompletedTasksView = ({
   const { deleteTask, tasks, toggleTaskCompletion, updateTask, unskipHabit } =
     useTasksState();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const categories: TaskCategory[] = ["work", "personal", "green", "chore"];
+  const categories: TaskCategory[] = ['work', 'personal', 'green', 'chore'];
 
-  const handleEditTask = (taskData: Omit<Task, "id" | "isCompleted">) => {
+  const handleEditTask = (taskData: Omit<Task, 'id' | 'isCompleted'>) => {
     if (editingTask) {
       updateTask(editingTask.id, taskData);
       setEditingTask(null);
@@ -26,13 +27,23 @@ export const CompletedTasksView = ({
   const today = new Date().toISOString().split('T')[0];
 
   const taskFilter = (task: Task) => {
-    if (hideWorkTasks && task.category === "work") return false;
-    const isSkippedToday = task.category === "chore" && task.skippedDate === today;
+    if (hideWorkTasks && task.category === 'work') return false;
+    const isSkippedToday =
+      task.category === 'chore' && task.skippedDate === today;
     return task.isCompleted || isSkippedToday;
   };
 
   return (
-    <>
+    <Box
+      id="completed-tasks-view"
+      sx={{
+        position: 'relative',
+        minHeight: '100dvh',
+        pb: 8,
+        width: 'calc(100svw - 28px)',
+        marginInline: 'auto',
+      }}
+    >
       <TasksGridView
         title="Completed Tasks"
         categories={categories}
@@ -52,6 +63,6 @@ export const CompletedTasksView = ({
         initialData={editingTask ?? undefined}
         mode="edit"
       />
-    </>
+    </Box>
   );
 };

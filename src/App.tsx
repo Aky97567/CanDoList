@@ -25,8 +25,9 @@ function App() {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '100vh',
-          minWidth: '100vw',
+          minHeight: '100%',
+          minWidth: '100%',
+          marginInline: 'auto',
         }}
       >
         <Navbar

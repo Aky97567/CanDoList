@@ -1,5 +1,5 @@
 // src/features/timeline/ui/Timeline.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -11,11 +11,11 @@ import {
   Alert,
   Button,
   Stack,
-} from "@mui/material";
-import { TimelineHeatmap } from "./TimelineHeatmap";
-import { TimelineTaskList } from "./TimelineTaskList";
-import { useTimelineData } from "../model";
-import { TaskCategory } from "@/entities";
+} from '@mui/material';
+import { TimelineHeatmap } from './TimelineHeatmap';
+import { TimelineTaskList } from './TimelineTaskList';
+import { useTimelineData } from '../model';
+import { TaskCategory } from '@/entities';
 
 interface TimelineProps {
   hideWorkTasks: boolean;
@@ -44,7 +44,7 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
   }, [dateRange.startDate, dateRange.endDate]);
 
   const filteredTasks = hideWorkTasks
-    ? selectedDateTasks.filter((task) => task.category !== "work")
+    ? selectedDateTasks.filter((task) => task.category !== 'work')
     : selectedDateTasks;
 
   const handleDateClick = (date: string) => {
@@ -59,11 +59,11 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
   // Preset date range handlers - will update both backend data and UI inputs
   const handlePresetDateRange = (preset: string) => {
     const today = new Date();
-    let newStartDate = "";
-    let newEndDate = "";
+    let newStartDate = '';
+    let newEndDate = '';
 
     // Current week (Sunday to Saturday)
-    if (preset === "current-week") {
+    if (preset === 'current-week') {
       const currentDay = today.getDay(); // 0 = Sunday, 6 = Saturday
       const sundayDate = new Date(today);
       sundayDate.setDate(today.getDate() - currentDay);
@@ -71,37 +71,37 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
       const saturdayDate = new Date(today);
       saturdayDate.setDate(today.getDate() + (6 - currentDay));
 
-      newStartDate = sundayDate.toISOString().split("T")[0];
-      newEndDate = saturdayDate.toISOString().split("T")[0];
+      newStartDate = sundayDate.toISOString().split('T')[0];
+      newEndDate = saturdayDate.toISOString().split('T')[0];
     }
 
     // Current month
-    else if (preset === "current-month") {
+    else if (preset === 'current-month') {
       const firstDayOfMonth = new Date(
         today.getFullYear(),
         today.getMonth(),
-        1
+        1,
       );
       const lastDayOfMonth = new Date(
         today.getFullYear(),
         today.getMonth() + 1,
-        0
+        0,
       );
 
-      newStartDate = firstDayOfMonth.toISOString().split("T")[0];
-      newEndDate = lastDayOfMonth.toISOString().split("T")[0];
+      newStartDate = firstDayOfMonth.toISOString().split('T')[0];
+      newEndDate = lastDayOfMonth.toISOString().split('T')[0];
     }
 
     // Year to date (Jan 1 to today)
-    else if (preset === "current-year") {
+    else if (preset === 'current-year') {
       const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
 
-      newStartDate = firstDayOfYear.toISOString().split("T")[0];
-      newEndDate = today.toISOString().split("T")[0];
+      newStartDate = firstDayOfYear.toISOString().split('T')[0];
+      newEndDate = today.toISOString().split('T')[0];
     }
 
     // Last week
-    else if (preset === "last-week") {
+    else if (preset === 'last-week') {
       const lastSunday = new Date(today);
       const currentDay = today.getDay();
       lastSunday.setDate(today.getDate() - currentDay - 7);
@@ -109,34 +109,34 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
       const lastSaturday = new Date(lastSunday);
       lastSaturday.setDate(lastSunday.getDate() + 6);
 
-      newStartDate = lastSunday.toISOString().split("T")[0];
-      newEndDate = lastSaturday.toISOString().split("T")[0];
+      newStartDate = lastSunday.toISOString().split('T')[0];
+      newEndDate = lastSaturday.toISOString().split('T')[0];
     }
 
     // Last month
-    else if (preset === "last-month") {
+    else if (preset === 'last-month') {
       const firstDayLastMonth = new Date(
         today.getFullYear(),
         today.getMonth() - 1,
-        1
+        1,
       );
       const lastDayLastMonth = new Date(
         today.getFullYear(),
         today.getMonth(),
-        0
+        0,
       );
 
-      newStartDate = firstDayLastMonth.toISOString().split("T")[0];
-      newEndDate = lastDayLastMonth.toISOString().split("T")[0];
+      newStartDate = firstDayLastMonth.toISOString().split('T')[0];
+      newEndDate = lastDayLastMonth.toISOString().split('T')[0];
     }
 
     // Last 52 weeks
-    else if (preset === "last-year") {
+    else if (preset === 'last-year') {
       const weeksAgo52 = new Date(today);
       weeksAgo52.setDate(today.getDate() - 364); // 52 weeks * 7 days = 364 days
 
-      newStartDate = weeksAgo52.toISOString().split("T")[0];
-      newEndDate = today.toISOString().split("T")[0];
+      newStartDate = weeksAgo52.toISOString().split('T')[0];
+      newEndDate = today.toISOString().split('T')[0];
     }
 
     // Update local state
@@ -173,14 +173,17 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
   const categoryCounts = getCategoryCounts();
   const totalTasks = Object.values(categoryCounts).reduce(
     (sum, count) => sum + count,
-    0
+    0,
   );
 
   return (
     <Box
       sx={{
-        py: 2,
-        width: "calc(100vw - 48px)",
+        position: 'relative',
+        minHeight: '100dvh',
+        pb: 8,
+        width: 'calc(100svw - 28px)',
+        marginInline: 'auto',
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom>
@@ -194,7 +197,7 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
 
         {/* Quick selection buttons */}
         <Stack
-          direction={{ xs: "column", sm: "row" }}
+          direction={{ xs: 'column', sm: 'row' }}
           spacing={1}
           sx={{ mb: 2 }}
           flexWrap="wrap"
@@ -202,42 +205,42 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
           <Button
             size="small"
             variant="outlined"
-            onClick={() => handlePresetDateRange("current-week")}
+            onClick={() => handlePresetDateRange('current-week')}
           >
             Current Week
           </Button>
           <Button
             size="small"
             variant="outlined"
-            onClick={() => handlePresetDateRange("current-month")}
+            onClick={() => handlePresetDateRange('current-month')}
           >
             Current Month
           </Button>
           <Button
             size="small"
             variant="outlined"
-            onClick={() => handlePresetDateRange("current-year")}
+            onClick={() => handlePresetDateRange('current-year')}
           >
             Year to Date
           </Button>
           <Button
             size="small"
             variant="outlined"
-            onClick={() => handlePresetDateRange("last-week")}
+            onClick={() => handlePresetDateRange('last-week')}
           >
             Last Week
           </Button>
           <Button
             size="small"
             variant="outlined"
-            onClick={() => handlePresetDateRange("last-month")}
+            onClick={() => handlePresetDateRange('last-month')}
           >
             Last Month
           </Button>
           <Button
             size="small"
             variant="outlined"
-            onClick={() => handlePresetDateRange("last-year")}
+            onClick={() => handlePresetDateRange('last-year')}
           >
             Last 52 Weeks
           </Button>
@@ -254,9 +257,9 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 sx={{
-                  "& input": {
-                    width: "100%",
-                    boxSizing: "border-box",
+                  '& input': {
+                    width: '100%',
+                    boxSizing: 'border-box',
                     mb: 1,
                   },
                 }}
@@ -271,16 +274,16 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 sx={{
-                  "& input": {
-                    width: "100%",
-                    boxSizing: "border-box",
+                  '& input': {
+                    width: '100%',
+                    boxSizing: 'border-box',
                     mb: 1,
                   },
                 }}
               />
             </Grid>
             <Grid item xs={12} sm={2}>
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button type="submit" variant="contained" color="primary">
                   Apply
                 </Button>
@@ -291,7 +294,7 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
       </Paper>
 
       {isLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
           <CircularProgress />
         </Box>
       ) : error ? (
@@ -333,11 +336,11 @@ export const Timeline = ({ hideWorkTasks }: TimelineProps) => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body2">
-                  Date range: <strong>{dateRange.startDate}</strong> to{" "}
+                  Date range: <strong>{dateRange.startDate}</strong> to{' '}
                   <strong>{dateRange.endDate}</strong>
                 </Typography>
                 <Typography variant="body2">
-                  Days with completed tasks:{" "}
+                  Days with completed tasks:{' '}
                   <strong>{Object.keys(timelineData).length}</strong>
                 </Typography>
               </Grid>

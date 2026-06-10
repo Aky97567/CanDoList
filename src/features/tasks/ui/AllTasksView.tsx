@@ -1,8 +1,9 @@
 // src/features/tasks/ui/AllTasksView.tsx
-import { useMemo, useState } from "react";
-import { Task, TaskForm, TaskCategory } from "@/entities";
-import { useTasksState } from "../model";
-import { TasksGridView } from "./TasksGridView";
+import { useMemo, useState } from 'react';
+import { Task, TaskForm, TaskCategory } from '@/entities';
+import { useTasksState } from '../model';
+import { TasksGridView } from './TasksGridView';
+import { Box } from '@mui/material';
 
 interface AllTasksViewProps {
   hideWorkTasks?: boolean;
@@ -10,11 +11,11 @@ interface AllTasksViewProps {
 
 const getPriorityValue = (priority: string): number => {
   switch (priority) {
-    case "high":
+    case 'high':
       return 0;
-    case "regular":
+    case 'regular':
       return 1;
-    case "low":
+    case 'low':
       return 2;
     default:
       return 3;
@@ -35,25 +36,34 @@ export const AllTasksView = ({ hideWorkTasks = false }: AllTasksViewProps) => {
 
   const sortedTasks = useMemo(() => {
     return [...tasks].sort(
-      (a, b) => getPriorityValue(a.priority) - getPriorityValue(b.priority)
+      (a, b) => getPriorityValue(a.priority) - getPriorityValue(b.priority),
     );
   }, [tasks]);
 
-  const handleEditTask = (taskData: Omit<Task, "id" | "isCompleted">) => {
+  const handleEditTask = (taskData: Omit<Task, 'id' | 'isCompleted'>) => {
     if (editingTask) {
       updateTask(editingTask.id, taskData);
       setEditingTask(null);
     }
   };
 
-  const categories: TaskCategory[] = ["work", "personal", "green"];
+  const categories: TaskCategory[] = ['work', 'personal', 'green'];
 
   const taskFilter = (task: Task) => {
-    return !task.isCompleted && !(hideWorkTasks && task.category === "work");
+    return !task.isCompleted && !(hideWorkTasks && task.category === 'work');
   };
 
   return (
-    <>
+    <Box
+      id=""
+      sx={{
+        position: 'relative',
+        minHeight: '100dvh',
+        pb: 8,
+        width: 'calc(100svw - 28px)',
+        marginInline: 'auto',
+      }}
+    >
       <TasksGridView
         title="All Tasks"
         categories={categories}
@@ -80,6 +90,6 @@ export const AllTasksView = ({ hideWorkTasks = false }: AllTasksViewProps) => {
         initialData={editingTask ?? undefined}
         mode="edit"
       />
-    </>
+    </Box>
   );
 };

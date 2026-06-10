@@ -1,10 +1,10 @@
 // src/features/tasks/ui/DailyPlanView.tsx
-import { useState } from "react";
-import { Box, Typography, Fab } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import { Task, TaskForm } from "@/entities";
-import { useTasksState } from "../model";
-import { DraggableTaskList } from "./DraggableTaskList";
+import { useState } from 'react';
+import { Box, Typography, Fab } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { Task, TaskForm } from '@/entities';
+import { useTasksState } from '../model';
+import { DraggableTaskList } from './DraggableTaskList';
 
 interface DailyPlanViewProps {
   hideWorkTasks?: boolean;
@@ -26,7 +26,7 @@ export const DailyPlanView = ({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const handleEditTask = (taskData: Omit<Task, "id" | "isCompleted">) => {
+  const handleEditTask = (taskData: Omit<Task, 'id' | 'isCompleted'>) => {
     if (editingTask) {
       updateTask(editingTask.id, taskData);
       setEditingTask(null);
@@ -53,11 +53,11 @@ export const DailyPlanView = ({
     <Box
       id="daily-plan-view"
       sx={{
-        position: "relative",
-        minHeight: "100vh",
+        position: 'relative',
+        minHeight: '100dvh',
         pb: 8,
-        width: "calc(100vw - 28px)",
-        maxWidth: "400px",
+        width: 'calc(100svw - 28px)',
+        marginInline: 'auto',
       }}
     >
       <Typography variant="h6" sx={{ mb: 3 }}>
@@ -73,7 +73,9 @@ export const DailyPlanView = ({
           <DraggableTaskList
             tasks={dailyTasks}
             onEdit={setEditingTask}
-            onReorder={(oldIndex, newIndex) => reorderTasks(dailyTasks, oldIndex, newIndex)}
+            onReorder={(oldIndex, newIndex) =>
+              reorderTasks(dailyTasks, oldIndex, newIndex)
+            }
             onComplete={toggleTaskCompletion}
             onTogglePriority={toggleTaskPriority}
             onRemoveFromDaily={toggleDailyTask}
@@ -87,7 +89,7 @@ export const DailyPlanView = ({
         aria-label="add task"
         onClick={() => setIsFormOpen(true)}
         sx={{
-          position: "fixed",
+          position: 'fixed',
           bottom: 16,
           right: 16,
         }}
