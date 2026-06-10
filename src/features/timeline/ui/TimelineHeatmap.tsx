@@ -83,7 +83,7 @@ export const TimelineHeatmap = ({
     // Handle potential partial last week
     if (currentWeek.length > 0) {
       const lastDayOfWeek = new Date(
-        currentWeek[currentWeek.length - 1]
+        currentWeek[currentWeek.length - 1],
       ).getDay();
 
       // Pad with future dates if needed
@@ -134,7 +134,7 @@ export const TimelineHeatmap = ({
     // Find max task count for scaling
     const maxTaskCount = Math.max(
       1,
-      ...Object.values(data).map((tasks) => tasks.length)
+      ...Object.values(data).map((tasks) => tasks.length),
     );
 
     // Scale from light to dark green

@@ -80,6 +80,28 @@ export const getDateRange = (rangeType: string) => {
   }
 };
 
+const mergeHabitCompletions = (
+  archiveData: TimelineData,
+  habitCompletions: { taskId: string; date: string }[],
+  tasks: Task[]
+): TimelineData => {
+  const merged: TimelineData = {};
+  for (const [date, dateTasks] of Object.entries(archiveData)) {
+    merged[date] = [...dateTasks];
+  }
+
+  habitCompletions.forEach(({ taskId, date }) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    if (!merged[date]) merged[date] = [];
+    if (!merged[date].some((t) => t.id === taskId)) {
+      merged[date] = [...merged[date], task];
+    }
+  });
+
+  return merged;
+};
+
 export const useTimelineData = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,11 +123,15 @@ export const useTimelineData = () => {
       setIsLoading(true);
       setError(null);
 
-      // Get all archived tasks grouped by date
-      const data = await storage.getArchivedTasks();
-      setTimelineData(data);
+      const { startDate, endDate } = getCurrentYearDates();
+      const [archiveData, habitCompletions, allTasks] = await Promise.all([
+        storage.getArchivedTasks(),
+        storage.getHabitCompletionsInRange(startDate, endDate),
+        storage.getTasks(),
+      ]);
 
-      // If there's a selected date, load tasks for that date
+      setTimelineData(mergeHabitCompletions(archiveData, habitCompletions, allTasks));
+
       if (selectedDate) {
         await loadTasksForDate(selectedDate);
       }
@@ -122,8 +148,19 @@ export const useTimelineData = () => {
       setIsLoading(true);
       setError(null);
 
-      const tasks = await storage.getArchivedTasksForDate(date);
-      setSelectedDateTasks(tasks);
+      const [archiveTasks, habitCompletions, allTasks] = await Promise.all([
+        storage.getArchivedTasksForDate(date),
+        storage.getHabitCompletionsInRange(date, date),
+        storage.getTasks(),
+      ]);
+
+      const merged = mergeHabitCompletions(
+        { [date]: archiveTasks },
+        habitCompletions,
+        allTasks
+      );
+
+      setSelectedDateTasks(merged[date] ?? []);
       setSelectedDate(date);
     } catch (error) {
       console.error(`Error loading tasks for date ${date}:`, error);
@@ -138,33 +175,29 @@ export const useTimelineData = () => {
       setIsLoading(true);
       setError(null);
 
-      const tasks = await storage.getArchivedTasksForDateRange(
-        startDate,
-        endDate
-      );
+      const [archiveTasks, habitCompletions, allTasks] = await Promise.all([
+        storage.getArchivedTasksForDateRange(startDate, endDate),
+        storage.getHabitCompletionsInRange(startDate, endDate),
+        storage.getTasks(),
+      ]);
 
-      // Group tasks by date
-      const groupedTasks: TimelineData = {};
-      tasks.forEach((task) => {
+      const groupedArchive: TimelineData = {};
+      archiveTasks.forEach((task) => {
         const completedDate = (
           task as Task & { completedDate: string }
         ).completedDate.split("T")[0];
-        if (!groupedTasks[completedDate]) {
-          groupedTasks[completedDate] = [];
-        }
-        groupedTasks[completedDate].push(task);
+        if (!groupedArchive[completedDate]) groupedArchive[completedDate] = [];
+        groupedArchive[completedDate].push(task);
       });
 
-      setTimelineData(groupedTasks);
+      setTimelineData(mergeHabitCompletions(groupedArchive, habitCompletions, allTasks));
       setDateRange({ startDate, endDate });
     } catch (error) {
       console.error(
         `Error loading tasks for date range ${startDate} to ${endDate}:`,
         error
       );
-      setError(
-        `Failed to load tasks for selected date range. Please try again.`
-      );
+      setError(`Failed to load tasks for selected date range. Please try again.`);
     } finally {
       setIsLoading(false);
     }
