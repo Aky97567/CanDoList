@@ -33,13 +33,14 @@ export const DailyPlanView = ({
     }
   };
 
-  const today = new Date().toISOString().split('T')[0];
-
   const dailyTasks = tasks
     .filter((task) => {
       if (hideWorkTasks && task.category === 'work') return false;
       if (task.category === 'chore') {
-        return !task.isCompleted && task.skippedDate !== today;
+        const lastCompletedDay = task.lastCompletedDate?.split('T')[0];
+        const skipIsActive = !!task.skippedDate &&
+          (!lastCompletedDay || task.skippedDate > lastCompletedDay);
+        return !task.isCompleted && !skipIsActive;
       }
       return !task.isCompleted && task.addedToDaily;
     })

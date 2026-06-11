@@ -24,13 +24,9 @@ export const CompletedTasksView = ({
     }
   };
 
-  const today = new Date().toISOString().split('T')[0];
-
   const taskFilter = (task: Task) => {
     if (hideWorkTasks && task.category === 'work') return false;
-    const isSkippedToday =
-      task.category === 'chore' && task.skippedDate === today;
-    return task.isCompleted || isSkippedToday;
+    return task.isCompleted;
   };
 
   return (
