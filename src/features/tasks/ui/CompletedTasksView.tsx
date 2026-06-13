@@ -26,7 +26,10 @@ export const CompletedTasksView = ({
 
   const taskFilter = (task: Task) => {
     if (hideWorkTasks && task.category === 'work') return false;
-    return task.isCompleted;
+    const lastCompletedDay = task.lastCompletedDate?.split('T')[0];
+    const skipIsActive = task.category === 'chore' && !!task.skippedDate &&
+      (!lastCompletedDay || task.skippedDate > lastCompletedDay);
+    return task.isCompleted || skipIsActive;
   };
 
   return (

@@ -44,8 +44,9 @@ export const TaskCard = ({
   const isHabit = category === "chore";
   const hasStreak = isHabit && ((task.currentStreak || 0) > 0);
   const atRisk = isHabit && isStreakAtRisk(task.lastCompletedDate);
-  const today = new Date().toISOString().split('T')[0];
-  const isSkippedToday = isHabit && task.skippedDate === today;
+  const lastCompletedDay = task.lastCompletedDate?.split('T')[0];
+  const isSkippedToday = isHabit && !!task.skippedDate &&
+    (!lastCompletedDay || task.skippedDate > lastCompletedDay);
 
   // Get border color - add highlight for at-risk streaks
   const categoryColor = getCategoryColor(category);
