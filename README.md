@@ -38,31 +38,32 @@ Habit tasks (`chore`) carry additional streak fields: `currentStreak`, `longestS
 
 ## Architecture
 
-Vite + React SPA following [Feature-Sliced Design](https://feature-sliced.design/).
+Vite + React SPA following [Feature-Sliced Design](https://feature-sliced.design/), living under `website/`.
 
 ```
-src/
-├── app/
-│   └── providers/
-│       ├── StorageProvider.tsx   # Initialises Firebase; provides TaskStorage via context
-│       └── useStorage.ts
-├── entities/
-│   └── task/
-│       ├── model/types.ts        # Task types + colour helpers
-│       ├── model/rankUtils.ts    # Rank helpers for drag-and-drop ordering
-│       └── ui/TaskCard.tsx
-├── features/
-│   ├── tasks/                    # Task CRUD, daily plan, completed view, drag-and-drop
-│   ├── habits/                   # Streak tracking (streakUtils.ts, HabitStreaksView)
-│   └── timeline/                 # Completion heatmap + date-range task list
-├── shared/
-│   ├── api/
-│   │   ├── domain/types/         # View union type and cross-cutting types
-│   │   ├── ports/out/storage/    # TaskStorage interface (port)
-│   │   └── adapters/out/storage/ # FirebaseAdapter + LocalStorageAdapter
-│   └── ui/                       # Heatmap, LoadingState, ErrorState primitives
-└── widgets/
-    └── navigation/               # Navbar, mobile menu, view-switching
+website/
+└── src/
+    ├── app/
+    │   └── providers/
+    │       ├── StorageProvider.tsx   # Initialises Firebase; provides TaskStorage via context
+    │       └── useStorage.ts
+    ├── entities/
+    │   └── task/
+    │       ├── model/types.ts        # Task types + colour helpers
+    │       ├── model/rankUtils.ts    # Rank helpers for drag-and-drop ordering
+    │       └── ui/TaskCard.tsx
+    ├── features/
+    │   ├── tasks/                    # Task CRUD, daily plan, completed view, drag-and-drop
+    │   ├── habits/                   # Streak tracking (streakUtils.ts, HabitStreaksView)
+    │   └── timeline/                 # Completion heatmap + date-range task list
+    ├── shared/
+    │   ├── api/
+    │   │   ├── domain/types/         # View union type and cross-cutting types
+    │   │   ├── ports/out/storage/    # TaskStorage interface (port)
+    │   │   └── adapters/out/storage/ # FirebaseAdapter + LocalStorageAdapter
+    │   └── ui/                       # Heatmap, LoadingState, ErrorState primitives
+    └── widgets/
+        └── navigation/               # Navbar, mobile menu, view-switching
 ```
 
 **Layer rules**: `entities` ← `features` ← `widgets`. `shared` is available to all layers.
@@ -71,7 +72,7 @@ src/
 
 - **Active adapter**: Firebase Firestore (`FirebaseAdapter`).
 - **Offline/dev**: swap to `LocalStorageAdapter` via the commented-out lines in `StorageProvider.tsx`.
-- **Config**: copy `.env.example` → `.env.local` and fill in `VITE_FIREBASE_*` values. Never commit `.env.local`.
+- **Config**: copy `website/.env.example` → `website/.env.local` and fill in `VITE_FIREBASE_*` values. Never commit `.env.local`.
 
 ## Tech Stack
 
@@ -85,6 +86,8 @@ src/
 ## Getting Started
 
 ```bash
+cd website
+
 # Install dependencies
 npm install
 
@@ -95,7 +98,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Other commands:
+Other commands (run from `website/`):
 
 ```bash
 npm run build      # Type-check + production build
