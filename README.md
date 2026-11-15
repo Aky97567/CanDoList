@@ -82,36 +82,37 @@ website/
 - **Database**: Firebase Firestore
 - **Build**: Vite
 - **Deploy**: GitHub Pages
+- **Package manager**: Yarn (Berry, `node-modules` linker) with workspaces — `website` is the sole workspace
 
 ## Getting Started
 
 ```bash
-cd website
+corepack enable   # picks up the pinned Yarn version from packageManager
 
-# Install dependencies
-npm install
+# Install dependencies (run from repo root)
+yarn install
 
 # Copy and fill in Firebase config
-cp .env.example .env.local
+cp website/.env.example website/.env.local
 
 # Start dev server (localhost:5173)
-npm run dev
+cd website && yarn dev
 ```
 
-Other commands (run from `website/`):
+Other commands (run from `website/`, or as `yarn workspace website <script>` from repo root):
 
 ```bash
-npm run build      # Type-check + production build
-npm run lint       # ESLint
-npm run preview    # Preview production build locally
+yarn build      # Type-check + production build
+yarn lint       # ESLint
+yarn preview    # Preview production build locally
 ```
 
 ## CI/CD
 
 GitHub Actions (`.github/workflows/build-and-deploy.yml`):
 
-- **build** job: runs on every push and PR to `main` — installs deps, injects Firebase secrets, runs `npm run build`.
-- **deploy** job: runs only on `main` after build passes — uploads `dist/` to GitHub Pages and writes a `CNAME` for the custom domain.
+- **build** job: runs on every push and PR to `main` — `yarn install --immutable`, injects Firebase secrets into `website/.env`, runs `yarn workspace website build`.
+- **deploy** job: runs only on `main` after build passes — uploads `website/dist/` to GitHub Pages and writes a `CNAME` for the custom domain.
 
 Firebase secrets are stored as GitHub Actions secrets (`VITE_FIREBASE_*`).
 
