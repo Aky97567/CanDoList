@@ -67,34 +67,53 @@ export class FirebaseAdapter implements TaskStorage {
 
   async saveTasks(tasks: Task[]): Promise<void> {
     try {
-      console.log("FirebaseAdapter: Saving tasks:", tasks);
       const batch = writeBatch(db);
       const collectionPath = this.getCollectionPath();
 
-      console.log("FirebaseAdapter: Getting existing tasks...");
+      // Still needs a full read to detect deletions (a task present before
+      // but missing from the new list) — reads are far cheaper than writes
+      // on Firestore's quota, so this isn't the expensive part.
       const existingSnapshot = await getDocs(collection(db, collectionPath));
-      const existingIds = new Set(existingSnapshot.docs.map((doc) => doc.id));
+      const existingDataById = new Map(
+        existingSnapshot.docs.map((doc) => [doc.id, doc.data()])
+      );
       const newIds = new Set(tasks.map((task) => task.id));
 
-      console.log("FirebaseAdapter: Existing IDs:", existingIds);
-      console.log("FirebaseAdapter: New IDs:", newIds);
-
+      let deleteCount = 0;
       existingSnapshot.docs.forEach((doc) => {
         if (!newIds.has(doc.id)) {
-          console.log("FirebaseAdapter: Deleting task:", doc.id);
           batch.delete(doc.ref);
+          deleteCount++;
         }
       });
 
+      // Only write documents that are new or actually changed. Writing every
+      // task on every save (the previous behavior) turns a one-field edit
+      // into a full-collection rewrite — expensive, and the direct cause of
+      // exhausting Firestore's write quota when this ran against the real
+      // (144-task) collection for the first time.
+      let writeCount = 0;
       tasks.forEach((task) => {
-        console.log("FirebaseAdapter: Setting task:", task.id);
-        const docRef = doc(db, collectionPath, task.id);
-        batch.set(docRef, task);
+        const existingData = existingDataById.get(task.id);
+        if (
+          existingData === undefined ||
+          JSON.stringify(existingData) !== JSON.stringify(task)
+        ) {
+          const docRef = doc(db, collectionPath, task.id);
+          batch.set(docRef, task);
+          writeCount++;
+        }
       });
 
-      console.log("FirebaseAdapter: Committing batch...");
+      if (writeCount === 0 && deleteCount === 0) {
+        console.log("FirebaseAdapter: saveTasks — nothing changed, skipping commit");
+        return;
+      }
+
+      console.log(
+        `FirebaseAdapter: Committing batch (${writeCount} writes, ${deleteCount} deletes, ${tasks.length} total tasks)`
+      );
       await batch.commit();
-      console.log("FirebaseAdapter: Batch committed successfully");
     } catch (error) {
       console.error("Error saving tasks to Firebase:", error);
       throw error;
