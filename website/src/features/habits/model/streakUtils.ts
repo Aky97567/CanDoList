@@ -204,6 +204,14 @@ export const refreshAllHabitStreaks = (tasks: Task[]): Task[] => {
     
     // Check if streak is broken (missed for 2+ days)
     if (isStreakBroken(task.lastCompletedDate)) {
+      // Already recorded as broken on a previous load — return the same
+      // reference so this doesn't look like a change on every subsequent
+      // load. Without this, a habit that's been broken for weeks produces
+      // a fresh streakUpdatedAt timestamp on every page load forever,
+      // which made loadTasks() think something changed and resave the
+      // entire task collection every single time.
+      if ((task.currentStreak || 0) === 0) return task;
+
       return {
         ...task,
         currentStreak: 0, // Reset streak when broken
